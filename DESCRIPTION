@@ -1,7 +1,7 @@
-Package: guedesbocinsky2018
-Version: 1.0.0
-Title: Research Compendium for d'Alpoim Guedes and Bocinsky (2018)
-Description: This R package repository is a research compendium for d'Alpoim Guedes and Bocinsky (2018). 
+Package: gutaker2019
+Version: 0.1.0
+Title: Research Compendium for Gutaker et al. 2019 thermal niche model
+Description: This R package repository is a research compendium for Gutaker et al. 2019 thermal niche model. 
   The compendium contains all code associated with the analyses described and presented in the publication, 
   as well as a Docker environment for running the code.
 Authors@R: c(
@@ -18,7 +18,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 ByteCompile: true
-Depends: R (>= 3.4.3.0)
+Depends: R (>= 3.5.1.0)
 Remotes: 
     tidyverse/ggplot2,
     hadley/purrrlyr,

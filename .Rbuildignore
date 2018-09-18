@@ -1,8 +1,8 @@
-^guedesbocinsky2018\.Rproj$
+^gutaker2019\.Rproj$
 ^\.Rproj\.user$
 vignettes/data
 vignettes/figures
-vignettes/guedesbocinsky2018_cache
+vignettes/GutakerEtAl2019_cache
 vignettes/submission
 vignettes/zenodo
 ^README\.Rmd$

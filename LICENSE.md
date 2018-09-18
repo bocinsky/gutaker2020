@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2018 R. Kyle Bocinsky and Jade d'Alpoim Guedes
+Copyright (c) 2019 R. Kyle Bocinsky and Jade d'Alpoim Guedes
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

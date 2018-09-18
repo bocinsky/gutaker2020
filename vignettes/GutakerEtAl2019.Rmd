@@ -1,16 +1,13 @@
 ---
-title: "Analyses reported in d'Alpoim Guedes and Bocinsky (2018)"
+title: "Thermal niche model reported in Gutaker et al. (2019)"
 author:
   - R. Kyle Bocinsky
   - Jade d'Alpoim Guedes
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
-   
    cores: 2
    clean: FALSE
    google_maps_elevation_api_key: !r Sys.getenv('google_maps_elevation_api_key')
-   tdar_un: !r Sys.getenv('tdar_un')
-   tdar_pw: !r Sys.getenv('tdar_pw')
 output: 
     bookdown::html_document2:
       code_folding: hide
@@ -27,9 +24,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-This RMarkdown document performs all of the analyses reported in 
+This RMarkdown document creates the thermal niche model reported in 
 
-> d'Alpoim Guedes, Jade and R. Kyle Bocinsky. Climate change stimulated agricultural innovation and exchange across Asia. *In review.*
+> Gutaker et al. *In review.*
 
 ```{r, setup, echo = FALSE, cache = FALSE}
 # params <- list(cores = 2,
@@ -50,7 +47,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       fig.path = "./figures/"
 )
 
-library(guedesbocinsky2018)
+library(gutaker2019)
 library(sf)
 library(magrittr)
 library(fields)
@@ -98,9 +95,7 @@ set_class <- function(x, classes){
 
 #Define the study region
 ASIA_poly <-
-  raster::extent(55,125,5,60) %>% ## THE REAL ASIAN POLYGON
-  # raster::extent(66,72,37,43) %>% ## FOR TESTING PURPOSES ONLY
-  # raster::extent(94,104.5,26,39) %>% ## Eastern Tibetan Plateau FOR TESTING PURPOSES ONLY
+  raster::extent(55,150,-11,60) %>%
   FedData::polygon_from_extent("+proj=longlat") %>%
   sf::st_as_sf()
 
@@ -287,7 +282,7 @@ GHCN.GDD.incremented.sd <-
                     # purrr::map(GDDs,
                     .options = furrr::future_options(
                       packages = c("magrittr",
-                                   "guedesbocinsky2018"),
+                                   "gutaker2019"),
                       globals = c("sample.points",
                                   "GHCN.data.final")),
                     .f = function(base){
@@ -421,7 +416,7 @@ if(nrow(crop_GDD_run) > 0){
                                      "dplyr",
                                      "magrittr",
                                      "readr",
-                                     "guedesbocinsky2018")),
+                                     "gutaker2019")),
                       .f = function(crop){
                         
                         # Threshold for indicator kriging
@@ -485,7 +480,7 @@ junk <- furrr::future_map(crop_GDD$cultivar,
                                          "magrittr",
                                          "sp",
                                          "readr",
-                                         "guedesbocinsky2018")),
+                                         "gutaker2019")),
                           function(crop){
                             
                             if(file.exists(paste0("./data/derived_data/recons/",
@@ -871,7 +866,7 @@ gdd.recons <-
                              colorRampPalette(.))(length(breaks) - 1)
                    
                    if(!file.exists(paste0("./figures/cultivar_niches/",cultivar,".pdf")))
-                     guedesbocinsky2018:::space_time_plot(
+                     gutaker2019:::space_time_plot(
                        the_brick = rasts$Z,
                        the_brick_lower = rasts$Z_Lower,
                        the_brick_upper = rasts$Z_Upper,
@@ -890,7 +885,7 @@ gdd.recons <-
                      )
                    
                    if(!file.exists(paste0("./figures/cultivar_niches/",cultivar,".mp4")))
-                     guedesbocinsky2018:::space_time_video(                       the_brick = rasts$Z,
+                     gutaker2019:::space_time_video(                       the_brick = rasts$Z,
                                                                                   the_brick_lower = rasts$Z_Lower,
                                                                                   the_brick_upper = rasts$Z_Upper,
                                                                                   out_file = paste0("./figures/cultivar_niches/",cultivar,".mp4"),
@@ -1441,7 +1436,7 @@ for(n in 1:nrow(crops)){
             colorRampPalette(.))(length(breaks) - 1)
   
   if(!file.exists(paste0("./figures/crop_niches/all_",crop,".pdf")))
-    guedesbocinsky2018:::space_time_plot(the_brick = rasts$Z,
+    gutaker2019:::space_time_plot(the_brick = rasts$Z,
                                          the_brick_lower = rasts$Z_Lower,
                                          the_brick_upper = rasts$Z_Upper,
                                          out_file = paste0("./figures/crop_niches/all_",crop,".pdf"),
@@ -1517,7 +1512,7 @@ for(n in 1:nrow(crops)){
       )
     }
     
-    guedesbocinsky2018:::space_time_video(the_brick = rasts$Z,
+    gutaker2019:::space_time_video(the_brick = rasts$Z,
                                           the_brick_lower = rasts$Z_Lower,
                                           the_brick_upper = rasts$Z_Upper,
                                           out_file = paste0("./figures/crop_niches/all_",crop,".mp4"),
@@ -1769,7 +1764,7 @@ system(paste("tar -zcf submission/Data_file_S3_research_compendium.tar.gz",
              "--exclude='vignettes/data'",
              "--exclude='vignettes/figures'",
              "--exclude='vignettes/submission'",
-             "--exclude='vignettes/guedesbocinsky2018_cache'",
+             "--exclude='vignettes/GutakerEtAl2019_cache'",
              "--exclude='vignettes/zenodo'",
              "--exclude='.git'",
              "Data_file_S3_research_compendium"))
@@ -1788,7 +1783,7 @@ dir.create("./zenodo",
            recursive = TRUE,
            showWarnings = FALSE)
 
-system("tar -zcf ./zenodo/guedesbocinsky2018-1.0.0-output.tar.gz submission figures data")
+system("tar -zcf ./zenodo/gutaker2019-1.0.0-output.tar.gz submission figures data")
 ```
 
 <!-- The following line inserts a page break when the output is MS Word. For page breaks in PDF, use \newpage on its own line.  -->
