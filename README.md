@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-[![Last-changedate](https://img.shields.io/badge/last%20change-2018--09--18-brightgreen.svg)](https://github.com/bocinsky/gutaker2019/commits/master) [![CircleCI](https://circleci.com/gh/bocinsky/gutaker2019.svg?style=svg)](https://circleci.com/gh/bocinsky/gutaker2019) [![minimal R version](https://img.shields.io/badge/R%3E%3D-3.5.1-brightgreen.svg)](https://cran.r-project.org/) [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](http://choosealicense.com/licenses/mit/) <!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1239106.svg)](https://doi.org/10.5281/zenodo.1239106) -->
+[![Last-changedate](https://img.shields.io/badge/last%20change-2018--10--30-brightgreen.svg)](https://github.com/bocinsky/gutaker2019/commits/master) [![CircleCI](https://circleci.com/gh/bocinsky/gutaker2019.svg?style=svg)](https://circleci.com/gh/bocinsky/gutaker2019) [![minimal R version](https://img.shields.io/badge/R%3E%3D-3.5.1-brightgreen.svg)](https://cran.r-project.org/) [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](http://choosealicense.com/licenses/mit/) <!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1239106.svg)](https://doi.org/10.5281/zenodo.1239106) -->
 
 ## Research compendium package for Gutaker et al. 2018 thermal niche model
 
@@ -82,6 +82,22 @@ Please refer to the dockerfiles for [rocker/geospatial](https://github.com/rocke
 #### Windows
 
 This software has not been tested on Windows, but should install and work fine if all system requirements are installed.
+
+### R “vector memory exhausted” error
+
+Some installations of R—particularly R \>= 3.5.0 running on macOS—will throw a “vector memory exhausted” error when running the analysis. This occurs when R allocates larger vectors than allowed by default; see the [R NEWS file for 3.5.0](ftp://cran.r-project.org/pub/R/doc/manuals/r-release.save/NEWS.pdf) for details. If you get this error, increasing the `R_MAX_VSIZE` environment variable might solve the issue. Run these lines in the terminal:
+
+``` bash
+cd ~
+touch .Renviron
+open .Renviron
+```
+
+Then, add this to the first line of `.Renviron`:
+
+``` bash
+R_MAX_VSIZE=100Gb
+```
 
 ### Authentication for the Google Elevation API and tDAR
 
