@@ -854,22 +854,12 @@ purrr::walk(unique(densities$Site),
 
 # Create a spatial object of the sites
 sites <- chronometric_data %>%
-  dplyr::mutate(foxtail_millet = ifelse(is.na(`Foxtail millet`), FALSE, TRUE),
-                broomcorn_millet = ifelse(is.na(`Broomcorn millet`), FALSE, TRUE),
-                wheat = ifelse(is.na(Wheat), FALSE, TRUE),
-                barley = ifelse(is.na(Barley), FALSE, TRUE),
-                buckwheat = ifelse(is.na(Buckwheat), FALSE, TRUE),
-                rice = ifelse(is.na(`Rice`), FALSE, TRUE)) %>%
+  dplyr::mutate(rice = ifelse(is.na(`Rice`), FALSE, TRUE)) %>%
   dplyr::select(Site,
                 Period,
                 Longitude,
                 Latitude,
                 `14C date on cereal?`,
-                foxtail_millet,
-                broomcorn_millet,
-                wheat,
-                barley,
-                buckwheat,
                 rice) %>%
   dplyr::ungroup() %>%
   dplyr::distinct() %>%
@@ -885,11 +875,6 @@ sites <- chronometric_data %>%
 cairo_pdf("./figures/Figure_1_crop_map.pdf", width = 7.2, height = 10.5)
 print(sites %>%
         dplyr::mutate(Crop = dplyr::recode_factor(Crop,
-                                                  foxtail_millet = "Foxtail millet",
-                                                  broomcorn_millet = "Broomcorn millet",
-                                                  wheat = "Wheat",
-                                                  barley = "Barley",
-                                                  buckwheat = "Buckwheat",
                                                   rice = "Rice")) %>%
         ggplot2::ggplot() +
         ggplot2::geom_sf(data = countries,
@@ -980,11 +965,6 @@ p <- niche_densities %>%
   )) %>%
   dplyr::filter(!purrr::map_lgl(Niche, is.null)) %>%
   dplyr::mutate(Crop = dplyr::recode_factor(Crop,
-                                            foxtail_millet = "Foxtail millet",
-                                            broomcorn_millet = "Broomcorn millet",
-                                            wheat = "Wheat",
-                                            barley = "Barley",
-                                            buckwheat = "Buckwheat",
                                             rice = "Rice")) %>%
   dplyr::mutate(Density_Median = marcott2013$YearBP[purrr::map_int(Density, "Median")],
                 Density_Lower = marcott2013$YearBP[purrr::map(Density, "CI") %>%
@@ -1044,11 +1024,6 @@ niche_densities_extract <- niche_densities %>%
   dplyr::select(-Niche:-Density) %>%
   dplyr::distinct() %>%
   dplyr::mutate(Crop = dplyr::recode_factor(Crop,
-                                            foxtail_millet = "Foxtail millet",
-                                            broomcorn_millet = "Broomcorn millet",
-                                            wheat = "Wheat",
-                                            barley = "Barley",
-                                            buckwheat = "Buckwheat",
                                             rice = "Rice")) %>%
   dplyr::arrange(Site, Period, Crop) 
 
