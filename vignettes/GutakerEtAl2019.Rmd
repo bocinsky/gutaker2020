@@ -1317,22 +1317,12 @@ facet_niche <- function(crops, years){
     dplyr::mutate(Year = factor(Year, levels = years) %>%
                     forcats::fct_relabel(function(x){stringr::str_c(x," cal. BP")}),
                   Crop = dplyr::recode_factor(Crop,
-                                              wheat = "Wheat",
-                                              barley = "Barley",
-                                              buckwheat = "Buckwheat",
-                                              foxtail_millet = "Foxtail millet",
-                                              broomcorn_millet = "Broomcorn millet",
                                               rice = "Rice"))
   
   these_rasters <- crops %>%
     purrr::map(tidyCrop, years = years) %>%
     dplyr::bind_rows() %>%
     dplyr::mutate(Crop = dplyr::recode_factor(Crop,
-                                              wheat = "Wheat",
-                                              barley = "Barley",
-                                              buckwheat = "Buckwheat",
-                                              foxtail_millet = "Foxtail millet",
-                                              broomcorn_millet = "Broomcorn millet",
                                               rice = "Rice"),
                   Niche = Niche  %>%
                     cut(breaks = breaks,
@@ -1355,7 +1345,7 @@ facet_niche <- function(crops, years){
   return(p)
 }
 
-p <- facet_niche(crops = c("wheat", "barley", "buckwheat", "foxtail_millet", "broomcorn_millet", "rice"),
+p <- facet_niche(crops = c("rice"),
                  years = c(4030, 3550, 1690, 1010))
 
 cairo_pdf("./figures/Figure_2_facet_niche.pdf", width = 7.2, height = 10.3)
@@ -1401,72 +1391,6 @@ message("Plotting of crop niche reconstructions complete: ", capture.output(Sys.
 
 ```
 
-## Supplementary storage analysis {-}
-```{r storage}
-storage <- readr::read_csv("../inst/storage.csv")
-
-storage %>%
-  readr::write_csv("./data/derived_data/Table_S3_storage.csv")
-
-cairo_pdf("./figures/Figure_4_storage.pdf", width = 4.6, height = 3)
-print({
-  storage %>%
-    ggplot2::ggplot(ggplot2::aes(y = YRS_Storage,
-                                 x = Country)) +
-    ggplot2::geom_boxplot(fill = "forestgreen",
-                          varwidth = TRUE,
-                          outlier.shape = NA) +
-    ggplot2::xlab("Country") +
-    ggplot2::ylab("Years of storage") +
-    ggplot2::theme_minimal(base_size = 7) +
-    ggplot2::scale_y_continuous(limits = c(0,5),
-                                expand = c(0, 0, 0, 0))
-})
-dev.off()
-
-```
-
-## Create submission directory {-}
-
-```{r submission, cache = FALSE}
-unlink("./submission",
-       recursive = TRUE, 
-       force = TRUE)
-
-dir.create("./submission",
-           recursive = TRUE,
-           showWarnings = FALSE)
-
-# Copy figures
-file.copy(from = "./figures/Figure_1_crop_map.pdf",
-          to = "./submission/Figure_1_crop_map.pdf",
-          overwrite = TRUE)
-file.copy(from = "./figures/Figure_2_facet_niche.pdf",
-          to = "./submission/Figure_2_facet_niche.pdf",
-          overwrite = TRUE)
-file.copy(from = "./figures/Figure_3_all_crossplot.pdf",
-          to = "./submission/Figure_3_all_crossplot.pdf",
-          overwrite = TRUE)
-file.copy(from = "./figures/Figure_4_storage.pdf",
-          to = "./submission/Figure_4_storage.pdf",
-          overwrite = TRUE)
-file.copy(from = "./figures/Figure_5_modern_crops.pdf",
-          to = "./submission/Figure_5_modern_crops.pdf",
-          overwrite = TRUE)
-file.copy(from = "./figures/Figure_6_modern_crops_density.pdf",
-          to = "./submission/Figure_6_modern_crops_density.pdf",
-          overwrite = TRUE)
-
-# Copy Tables
-file.copy(from = "./data/derived_data/Table_S1_crops.csv",
-          to = "./submission/Table_S1_crops.csv",
-          overwrite = TRUE)
-file.copy(from = "./data/derived_data/Table_S2_age_niche_estimates.csv",
-          to = "./submission/Table_S2_age_niche_estimates.csv",
-          overwrite = TRUE)
-file.copy(from = "./data/derived_data/Table_S3_storage.csv",
-          to = "./submission/Table_S3_storage.csv",
-          overwrite = TRUE)
 
 # Copy Data Files
 file.copy(from = "./data/derived_data/Data_file_S1_sites_dates.xlsx",
