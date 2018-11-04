@@ -8,6 +8,8 @@ params:
    cores: 2
    clean: FALSE
    google_maps_elevation_api_key: !r Sys.getenv('google_maps_elevation_api_key')
+   tdar_un: !r Sys.getenv('your username')
+   tdar_pw: !r Sys.getenv('your password')
 output: 
     bookdown::html_document2:
       code_folding: hide
