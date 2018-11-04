@@ -1,4 +1,9 @@
 cultivar_long,cultivar,crop_long,crop,t_base,min_gdd
-"Rice, tropical japonica",rice_tropical_japonica,Rice,rice,10,2900
-"Rice, temperate japonica",rice_temperate_japonica,Rice,rice,10,2500
-"Rice, indica",rice_indica,Rice,rice,10,2400
+"Rice, tropical japonica 120",rice_tropical_japonica_120,tropical,tropical,10,2900
+"Rice, tropical japonica 120 130",rice_tropical_japonica_120_130,tropical,tropical,10,3000
+"Rice, tropical japonica 130",rice_tropical_japonica_130,tropical,tropical,10,3300
+"Rice, indica 110",rice_indica_110,indica,indica,10,2400
+"Rice, Indica 120",rice_indica_120,indica,indica,10,3000
+"Rice, temperate japonica 130",rice_temperate_japonica_130,temperate,temperate,10,2500
+"Rice, temperate japonica 130 150",rice_temperate_japonica_130_150,temperate,temperate,10,2500
+"Rice, temperate japonica 150",rice_temperate_japonica_150,temperate,temperate,10,3000

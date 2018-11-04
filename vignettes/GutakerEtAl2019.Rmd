@@ -205,10 +205,7 @@ countries <- "./data/derived_data/NaturalEarth/ne_10m_admin_0_countries_lakes/ne
   sf::st_read()  %>%
   sf::st_transform(sf::st_crs(ASIA_poly)) %>%
   sf::st_intersection(ASIA_poly) %>%
-  dplyr::filter(!(NAME %in% c("Indonesia",
-                              "Scarborough Reef",
-                              "Malaysia",
-                              "Philippines",
+  dplyr::filter(!(NAME %in% c("Scarborough Reef",
                               "Maldives",
                               "Spratly Is.",
                               "Oman",
