@@ -1391,6 +1391,136 @@ message("Plotting of crop niche reconstructions complete: ", capture.output(Sys.
 
 ```
 
+## Are GDD differences between Japan and Thailand stable across the reconstruction? {-}
+```{r niche-compare}
+japan_thai <- countries %>%
+  dplyr::filter(NAME %in% c("Japan","Thailand"))
+
+japan_thai_data <-
+  c("Tropical Japonica" = "tropical",
+    "Temperate Japonica" = "temperate",
+    "Indica" = "indica") %>%
+  purrr::map(
+    function(crop){
+      readr::read_rds(paste0("./data/derived_data/recons/all_",crop,".rds")) %>%
+        purrr::map(function(y){
+          y.vx <- velox::velox(y)
+          y.vx$extract(japan_thai,
+                       fun = function(i){mean(i, na.rm = TRUE)}) %>%
+            t() %>%
+            tibble::as_tibble() %>%
+            magrittr::set_names(japan_thai$NAME) %>%
+            dplyr::mutate(`Years BP` = 
+                            names(y) %>% 
+                            stringr::str_remove("X") %>% 
+                            as.integer()) %>%
+            dplyr::select(`Years BP`,
+                          dplyr::everything())
+        }) 
+    }
+  ) %>%
+  purrr::map(dplyr::bind_rows,
+             .id = "Series") %>%
+  dplyr::bind_rows(.id = "Crop") %>%
+  tidyr::gather(Country, `Probability of being in niche`,-Crop:-`Years BP`) %>%
+  tidyr::spread(Series, `Probability of being in niche`)
+
+japan_thai_data %>%
+  ggplot2::ggplot(ggplot2::aes(x = `Years BP`,
+                               color = Country)) +
+  ggplot2::geom_ribbon(ggplot2::aes(ymin = Z_Lower,
+                                    ymax = Z_Upper,
+                                    fill = Country),
+                       color = NA,
+                       alpha = 0.3) +
+  ggplot2::geom_line(ggplot2::aes(y = Z)) +
+  ggplot2::scale_x_reverse(limits = c(5510,1010),
+                           breaks = seq(5510,1010,-500),
+                           expand = c(0,0)) +
+  ggplot2::scale_y_continuous(name = "Probability of being in niche",
+                              limits = c(0,100),
+                              expand = c(0,0)) +
+  
+  ggplot2::facet_wrap(facets = "Crop",
+                      ncol = 1) +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(legend.position="bottom",
+                 plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 0, unit = "pt"))
+
+ggplot2::ggsave("./figures/japan_thailand_compare.pdf",
+                width = 6.5,
+                height = 6)
+
+
+smooth.preds <- function(y){
+  y[y<0] <- 0
+  y[y>1] <- 1
+  y <- loess(isoreg(y~sample.points)$yf~sample.points, span=0.1, degree=1) %>%
+    skinny.loess()
+  return(y)
+}
+
+test <- 
+  GHCN.data.final$spatial %>%
+  sf::st_as_sf() %>%
+  sf::st_transform(sf::st_crs(japan_thai)) %>%
+  sf::st_intersection(japan_thai) %>%
+  dplyr::select(ID) %>%
+  tibble::as_tibble() %>%
+  sf::st_as_sf() %>%
+  dplyr::left_join(
+    GHCN.GDD.incremented.sd[[1]] %>%
+      dplyr::group_by(ID) %>%
+      dplyr::summarise(`GDD Model` = list(loess(isoreg(GDD~SD_change)$yf~sample.points, span=0.1, degree=1)))
+  ) %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(`GDD` = list(
+    marcott2013 %>%
+      dplyr::select(`Years BP` = YearBP,
+                    Z_Lower,
+                    Z,
+                    Z_Upper) %>%
+      dplyr::mutate_at(.vars = vars(Z_Lower,
+                                    Z,
+                                    Z_Upper),
+                       .funs = function(x){
+                         predict(`GDD Model`,newdata = x)
+                       })
+  ))
+
+test %>%
+  sf::st_as_sf() %>%
+  dplyr::select(GDD) %>%
+  dplyr::ungroup() %>%
+  sf::st_intersection(japan_thai) %>%
+  dplyr::rename(Country = NAME) %>%
+  sf::st_drop_geometry() %>%
+  tidyr::unnest() %>%
+  dplyr::group_by(Country,`Years BP`) %>%
+  dplyr::summarise_all(mean, na.rm = TRUE) %>%
+  ggplot2::ggplot(ggplot2::aes(x = `Years BP`,
+                               color = Country)) +
+  ggplot2::geom_ribbon(ggplot2::aes(ymin = Z_Lower,
+                                    ymax = Z_Upper,
+                                    fill = Country),
+                       color = NA,
+                       alpha = 0.3) +
+  ggplot2::geom_line(ggplot2::aes(y = Z)) +
+  ggplot2::scale_x_reverse(limits = c(5510,1010),
+                           breaks = seq(5510,1010,-500),
+                           expand = c(0,0)) +
+  ggplot2::scale_y_continuous(name = "Growing Degree Days",
+                              limits = c(0,8000),
+                              expand = c(0,0)) +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(legend.position="bottom",
+                 plot.margin = ggplot2::margin(t = 10, r = 10, b = 0, l = 0, unit = "pt"))
+
+ggplot2::ggsave("./figures/japan_thailand_GDD_compare.pdf",
+                width = 6.5,
+                height = 6.5/1.618)
+
+```
 
 # Copy Data Files
 file.copy(from = "./data/derived_data/Data_file_S1_sites_dates.xlsx",
