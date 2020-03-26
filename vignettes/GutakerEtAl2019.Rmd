@@ -19,10 +19,10 @@ output:
       toc_float: true
       toc_depth: 3
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+%\VignetteIndexEntry{Vignette Title}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
+  editor_options: 
   chunk_output_type: console
 ---
 
@@ -651,20 +651,20 @@ gdd.recons <-
                    
                    if(!file.exists(paste0("./figures/cultivar_niches/",cultivar,".mp4")))
                      gutaker2019:::space_time_video(                       the_brick = rasts$Z,
-                                                                                  the_brick_lower = rasts$Z_Lower,
-                                                                                  the_brick_upper = rasts$Z_Upper,
-                                                                                  out_file = paste0("./figures/cultivar_niches/",cultivar,".mp4"),
-                                                                                  title = title,
-                                                                                  time = years,
-                                                                                  timelim = c(max(years),min(years)),
-                                                                                  timeaxis =  seq(from = max(years)-500,
-                                                                                                  to = min(years),
-                                                                                                  by = -500),
-                                                                                  timelab = "Years BP",
-                                                                                  zbreaks = breaks,
-                                                                                  zlab = "Probability of being in niche",
-                                                                                  zaxis = seq(0,100,10),
-                                                                                  zcolors = pal
+                                                                           the_brick_lower = rasts$Z_Lower,
+                                                                           the_brick_upper = rasts$Z_Upper,
+                                                                           out_file = paste0("./figures/cultivar_niches/",cultivar,".mp4"),
+                                                                           title = title,
+                                                                           time = years,
+                                                                           timelim = c(max(years),min(years)),
+                                                                           timeaxis =  seq(from = max(years)-500,
+                                                                                           to = min(years),
+                                                                                           by = -500),
+                                                                           timelab = "Years BP",
+                                                                           zbreaks = breaks,
+                                                                           zlab = "Probability of being in niche",
+                                                                           zaxis = seq(0,100,10),
+                                                                           zcolors = pal
                      )
                    
                    return(paste0("./figures/cultivar_niches/",cultivar,".pdf"))
@@ -1177,20 +1177,20 @@ for(n in 1:nrow(crops)){
   
   if(!file.exists(paste0("./figures/crop_niches/all_",crop,".pdf")))
     gutaker2019:::space_time_plot(the_brick = rasts$Z,
-                                         the_brick_lower = rasts$Z_Lower,
-                                         the_brick_upper = rasts$Z_Upper,
-                                         out_file = paste0("./figures/crop_niches/all_",crop,".pdf"),
-                                         title = title,
-                                         time = years,
-                                         timelim = c(max(years),min(years)),
-                                         timeaxis =  seq(from = max(years)-500,
-                                                         to = min(years),
-                                                         by = -500),
-                                         timelab = "Years BP",
-                                         zbreaks = breaks,
-                                         zlab = "Probability of being in niche",
-                                         zaxis = seq(0,100,10),
-                                         zcolors = pal
+                                  the_brick_lower = rasts$Z_Lower,
+                                  the_brick_upper = rasts$Z_Upper,
+                                  out_file = paste0("./figures/crop_niches/all_",crop,".pdf"),
+                                  title = title,
+                                  time = years,
+                                  timelim = c(max(years),min(years)),
+                                  timeaxis =  seq(from = max(years)-500,
+                                                  to = min(years),
+                                                  by = -500),
+                                  timelab = "Years BP",
+                                  zbreaks = breaks,
+                                  zlab = "Probability of being in niche",
+                                  zaxis = seq(0,100,10),
+                                  zcolors = pal
     )
   
   
@@ -1253,24 +1253,24 @@ for(n in 1:nrow(crops)){
     }
     
     gutaker2019:::space_time_video(the_brick = rasts$Z,
-                                          the_brick_lower = rasts$Z_Lower,
-                                          the_brick_upper = rasts$Z_Upper,
-                                          out_file = paste0("./figures/crop_niches/all_",crop,".mp4"),
-                                          title = title,
-                                          time = years,
-                                          timelim = c(max(years),min(years)),
-                                          timeaxis =  seq(from = max(years)-500,
-                                                          to = min(years),
-                                                          by = -500),
-                                          timelab = "Years BP",
-                                          zbreaks = breaks,
-                                          zlab = "Probability of being in niche",
-                                          zaxis = seq(0,100,10),
-                                          zcolors = pal,
-                                          extra_plot_fun = purrr::partial(sites_plot,
-                                                                          crops = crop,
-                                                                          scale = scales::area_pal(c(0.5,3))),
-                                          extra_legend_fun = sites_legend
+                                   the_brick_lower = rasts$Z_Lower,
+                                   the_brick_upper = rasts$Z_Upper,
+                                   out_file = paste0("./figures/crop_niches/all_",crop,".mp4"),
+                                   title = title,
+                                   time = years,
+                                   timelim = c(max(years),min(years)),
+                                   timeaxis =  seq(from = max(years)-500,
+                                                   to = min(years),
+                                                   by = -500),
+                                   timelab = "Years BP",
+                                   zbreaks = breaks,
+                                   zlab = "Probability of being in niche",
+                                   zaxis = seq(0,100,10),
+                                   zcolors = pal,
+                                   extra_plot_fun = purrr::partial(sites_plot,
+                                                                   crops = crop,
+                                                                   scale = scales::area_pal(c(0.5,3))),
+                                   extra_legend_fun = sites_legend
     )
     
   }
@@ -1395,6 +1395,12 @@ message("Plotting of crop niche reconstructions complete: ", capture.output(Sys.
 ```{r niche-compare}
 japan_thai <- countries %>%
   dplyr::filter(NAME %in% c("Japan","Thailand"))
+
+# # Get the pixel counts
+# crop <- "tropical"
+# y.vx <- velox::velox(readr::read_rds(paste0("./data/derived_data/recons/all_",crop,".rds"))[[1]])
+# y.vx$extract(japan_thai,
+#              fun = function(i){sum(!is.na(i))})[,1]
 
 japan_thai_data <-
   c("Tropical Japonica" = "tropical",
@@ -1524,44 +1530,44 @@ ggplot2::ggsave("./figures/japan_thailand_GDD_compare.pdf",
 
 # Copy Data Files
 file.copy(from = "./data/derived_data/Data_file_S1_sites_dates.xlsx",
-          to = "./submission/Data_file_S1_sites_dates.xlsx",
-          overwrite = TRUE)
+to = "./submission/Data_file_S1_sites_dates.xlsx",
+overwrite = TRUE)
 file.copy(from = "./figures/Data_file_S2_all_crossplot.html",
-          to = "./submission/Data_file_S2_all_crossplot.html",
-          overwrite = TRUE)
+to = "./submission/Data_file_S2_all_crossplot.html",
+overwrite = TRUE)
 
 # Copy Movies
 file.copy(from = "./figures/crop_niches/all_wheat.mp4",
-          to = "./submission/Movie_S1_wheat.mp4",
-          overwrite = TRUE)
+to = "./submission/Movie_S1_wheat.mp4",
+overwrite = TRUE)
 file.copy(from = "./figures/crop_niches/all_barley.mp4",
-          to = "./submission/Movie_S2_barley.mp4",
-          overwrite = TRUE)
+to = "./submission/Movie_S2_barley.mp4",
+overwrite = TRUE)
 file.copy(from = "./figures/crop_niches/all_broomcorn_millet.mp4",
-          to = "./submission/Movie_S3_broomcorn_millet.mp4",
-          overwrite = TRUE)
+to = "./submission/Movie_S3_broomcorn_millet.mp4",
+overwrite = TRUE)
 file.copy(from = "./figures/crop_niches/all_foxtail_millet.mp4",
-          to = "./submission/Movie_S4_foxtail_millet.mp4",
-          overwrite = TRUE)
+to = "./submission/Movie_S4_foxtail_millet.mp4",
+overwrite = TRUE)
 file.copy(from = "./figures/crop_niches/all_buckwheat.mp4",
-          to = "./submission/Movie_S5_buckwheat.mp4",
-          overwrite = TRUE)
+to = "./submission/Movie_S5_buckwheat.mp4",
+overwrite = TRUE)
 file.copy(from = "./figures/crop_niches/all_rice.mp4",
-          to = "./submission/Movie_S6_rice.mp4",
-          overwrite = TRUE)
+to = "./submission/Movie_S6_rice.mp4",
+overwrite = TRUE)
 
 # Write the compendium
 system(paste0("cp -r ../ ",tempdir(),"/Data_file_S3_research_compendium/"))
 
 system(paste("tar -zcf submission/Data_file_S3_research_compendium.tar.gz",
-             "-C ",tempdir(),
-             "--exclude='vignettes/data'",
-             "--exclude='vignettes/figures'",
-             "--exclude='vignettes/submission'",
-             "--exclude='vignettes/GutakerEtAl2019_cache'",
-             "--exclude='vignettes/zenodo'",
-             "--exclude='.git'",
-             "Data_file_S3_research_compendium"))
+"-C ",tempdir(),
+"--exclude='vignettes/data'",
+"--exclude='vignettes/figures'",
+"--exclude='vignettes/submission'",
+"--exclude='vignettes/GutakerEtAl2019_cache'",
+"--exclude='vignettes/zenodo'",
+"--exclude='.git'",
+"Data_file_S3_research_compendium"))
 
 ```
 
@@ -1570,12 +1576,12 @@ system(paste("tar -zcf submission/Data_file_S3_research_compendium.tar.gz",
 
 ```{r zenodo, cache = FALSE}
 unlink("./zenodo",
-       recursive = TRUE, 
-       force = TRUE)
+recursive = TRUE, 
+force = TRUE)
 
 dir.create("./zenodo",
-           recursive = TRUE,
-           showWarnings = FALSE)
+recursive = TRUE,
+showWarnings = FALSE)
 
 system("tar -zcf ./zenodo/gutaker2019-1.0.0-output.tar.gz submission figures data")
 ```
