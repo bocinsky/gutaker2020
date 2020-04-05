@@ -261,17 +261,16 @@ time_check <-  Sys.time()
 sample.points <- -20:20
 
 # Read in data on different crop GDD needs
-crop_GDD <- readr::read_csv(here::here("inst/crops.csv"),
-                            col_types = readr::cols(
-                              cultivar_long = readr::col_character(),
-                              cultivar = readr::col_character(),
-                              crop_long = readr::col_character(),
-                              crop = readr::col_character(),
-                              t_base = readr::col_double(),
-                              min_gdd = readr::col_integer()
-                            ))
-
-crop_GDD %>%
+crop_GDD <- 
+  readr::read_csv(here::here("inst/crops.csv"),
+                  col_types = readr::cols(
+                    cultivar_long = readr::col_character(),
+                    cultivar = readr::col_character(),
+                    crop_long = readr::col_character(),
+                    crop = readr::col_character(),
+                    t_base = readr::col_double(),
+                    min_gdd = readr::col_integer()
+                  )) %T>%
   readr::write_csv(paste0(derived_data,"/crops.csv"))
 
 # Transform GHCN data to GDDs of each base, and modulate to Marcott
@@ -597,6 +596,10 @@ dir.create(paste0(figures,"cultivar_niches/"),
            recursive = TRUE,
            showWarnings = FALSE)
 
+breaks <- seq(0, 100, 10)
+
+pal <- viridisLite::viridis(length(breaks) - 1)
+
 gdd.recons <- 
   purrr::map_chr(1:nrow(crop_GDD),
                  function(n){
@@ -608,11 +611,6 @@ gdd.recons <-
                                            crop_GDD[n,]$t_base,
                                            "°C, Required GDD: ",
                                            crop_GDD[n,]$min_gdd)
-                   
-                   if(
-                     file.exists(paste0(figures,"cultivar_niches/",cultivar,".pdf")) & 
-                     file.exists(paste0(figures,"cultivar_niches/",cultivar,".mp4"))
-                   ) return(paste0(figures,"cultivar_niches/",cultivar,".pdf"))
                    
                    rasts <- readr::read_rds(paste0(derived_data,"recons/",cultivar,"_recons.rds")) %>%
                      purrr::map(function(x){
@@ -629,12 +627,6 @@ gdd.recons <-
                           replacement = "",
                           x = .) %>%
                      as.numeric()
-                   
-                   breaks <- seq(0, 100, 10)
-                   
-                   pal <- (RColorBrewer::brewer.pal(10, "Spectral") %>%
-                             rev() %>%
-                             colorRampPalette(.))(length(breaks) - 1)
                    
                    if(!file.exists(paste0(figures,"cultivar_niches/",cultivar,".pdf")))
                      gutaker2020:::space_time_plot(

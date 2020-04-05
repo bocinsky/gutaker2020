@@ -20,11 +20,8 @@ LazyData: true
 ByteCompile: true
 Depends: R (>= 3.5.1.0)
 Remotes: 
-    tidyverse/ggplot2,
     hadley/purrrlyr,
-    DavisVaughan/furrr,
-    ropensci/writexl,
-    r-lib/devtools
+    DavisVaughan/furrr
 Imports: 
     FedData,
     Hmisc,
@@ -66,14 +63,14 @@ Imports:
     sf,
     bookdown,
     Bchron,
-    tdar,
     devtools,
     furrr,
     velox,
     rmapshaper,
     here,
     rnaturalearth,
-    viridisLite
+    viridisLite,
+    writexl
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
