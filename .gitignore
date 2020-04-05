@@ -7,8 +7,8 @@
 /vignettes/submission/*
 /vignettes/zenodo
 /vignettes/zenodo/*
-/vignettes/gutaker2020_rice_niche_cache
-/vignettes/gutaker2020_rice_niche_cache/*
+#/vignettes/gutaker2020_rice_niche_cache
+#/vignettes/gutaker2020_rice_niche_cache/*
 # Zenodo
 /Zenodo
 /Zenodo/*
