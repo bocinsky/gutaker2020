@@ -1,5 +1,5 @@
 ---
-title: "Thermal niche model reported in Gutaker et al. (2019)"
+title: "Thermal niche model reported in Gutaker et al. 2020"
 author:
   - R. Kyle Bocinsky
   - Jade d'Alpoim Guedes
@@ -16,10 +16,6 @@ output:
       toc: true
       toc_float: true
       toc_depth: 3
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
 ---
@@ -47,7 +43,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       fig.path = "./figures/"
 )
 
-library(gutaker2019)
+library(gutaker2020)
 library(sf)
 library(magrittr)
 library(fields)
