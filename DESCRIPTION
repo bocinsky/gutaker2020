@@ -1,7 +1,7 @@
-Package: gutaker2019
+Package: gutaker2020
 Version: 0.1.0
-Title: Research Compendium for Gutaker et al. 2019 thermal niche model
-Description: This R package repository is a research compendium for Gutaker et al. 2019 thermal niche model. 
+Title: Research Compendium for Gutaker et al. 2020 thermal niche model
+Description: This R package repository is a research compendium for Gutaker et al. 2020 thermal niche model. 
   The compendium contains all code associated with the analyses described and presented in the publication, 
   as well as a Docker environment for running the code.
 Authors@R: c(
@@ -22,7 +22,6 @@ Depends: R (>= 3.5.1.0)
 Remotes: 
     tidyverse/ggplot2,
     hadley/purrrlyr,
-    bocinsky/tdar,
     DavisVaughan/furrr,
     ropensci/writexl,
     r-lib/devtools
