@@ -25,6 +25,3 @@
 # RStudio files
 .Rproj.user/
 .Rproj.user
-# SLURM output
-*.err
-*.out
