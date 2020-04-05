@@ -1,14 +1,14 @@
 # Output
-/vignettes/data
-/vignettes/data/*
-/vignettes/figures
-/vignettes/figures/*
-/vignettes/submission
-/vignettes/submission/*
-/vignettes/zenodo
-/vignettes/zenodo/*
-#/vignettes/gutaker2020_rice_niche_cache
-#/vignettes/gutaker2020_rice_niche_cache/*
+/analysis/data
+/analysis/data/*
+/analysis/figures
+/analysis/figures/*
+/analysis/submission
+/analysis/submission/*
+/analysis/zenodo
+/analysis/zenodo/*
+/analysis/gutaker2020_rice_niche_cache
+/analysis/gutaker2020_rice_niche_cache/*
 # Zenodo
 /Zenodo
 /Zenodo/*
