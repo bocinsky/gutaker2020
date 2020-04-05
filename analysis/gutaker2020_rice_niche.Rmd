@@ -40,7 +40,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       out.width = "100%",
                       fig.height = 5,  
                       comment = "#>",
-                      fig.path = "./figures/"
+                      fig.path = here::here("analysis/figures/")
 )
 
 library(gutaker2020)
@@ -63,14 +63,18 @@ future::plan(future::multisession,
                            params$cores),
              gc = TRUE)
 
+raw_data <- here::here("analysis/data/raw_data/")
+derived_data <- here::here("analysis/data/derived_data/")
+figures <- here::here("analysis/figures/")
+
 # Create output directories
-dir.create("./data/raw_data",
+dir.create(raw_data,
            recursive = TRUE,
            showWarnings = FALSE)
-dir.create("./data/derived_data",
+dir.create(derived_data,
            recursive = TRUE,
            showWarnings = FALSE)
-dir.create("./figures",
+dir.create(figures,
            recursive = TRUE,
            showWarnings = FALSE)
 
@@ -114,49 +118,52 @@ message("Preparing the ETOPO5 grid-aligned dataset")
 
 time_check <-  Sys.time()
 
-if(!params$clean & file.exists("./data/derived_data/ASIA_rast_etopo5.tif")){
+ne_dir <- paste0(raw_data,"NaturalEarth/")
+
+if(!params$clean & file.exists(paste0(raw_data,"ASIA_rast_etopo5.tif"))){
   
-  ASIA_rast_etopo5 <- raster::raster("./data/derived_data/ASIA_rast_etopo5.tif")
+  ASIA_rast_etopo5 <- raster::raster(paste0(raw_data,"ASIA_rast_etopo5.tif"))
   
 }else{
   
   # Get the Natural Earth country lakes data
-  dir.create("./data/derived_data/NaturalEarth/", 
+  dir.create(ne_dir, 
              showWarnings = FALSE, 
              recursive = TRUE)
   
   FedData::download_data(
     url = "http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/physical/ne_10m_lakes.zip",
-    destdir = "./data/derived_data/NaturalEarth/"
+    destdir = ne_dir
   )
   
   unzip(
-    "./data/derived_data/NaturalEarth/ne_10m_lakes.zip", 
-    exdir = "./data/derived_data/NaturalEarth/ne_10m_lakes/"
+    paste0(ne_dir,"ne_10m_lakes.zip"), 
+    exdir = paste0(ne_dir,"ne_10m_lakes/")
   )
   
-  ne_10m_lakes <- "./data/derived_data/NaturalEarth/ne_10m_lakes/ne_10m_lakes.shp" %>%
+  ne_10m_lakes <-  paste0(ne_dir,"ne_10m_lakes/ne_10m_lakes.shp") %>%
     sf::st_read() %>%
     sf::st_transform(sf::st_crs(ASIA_poly)) %>%
     sf::st_intersection(ASIA_poly)
   
   # Get the Natural Earth country boundaries data
   dir.create(
-    "./data/derived_data/NaturalEarth/ne_10m_admin_0_countries_lakes/",
+    paste0(ne_dir,"ne_10m_admin_0_countries_lakes/"),
     showWarnings = FALSE, 
     recursive = TRUE
   )
   FedData::download_data(
     url = "http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_admin_0_countries_lakes.zip",
-    destdir = "./data/derived_data/NaturalEarth/"
+    destdir = ne_dir
   )
   
   unzip(
-    "./data/derived_data/NaturalEarth/ne_10m_admin_0_countries_lakes.zip", 
-    exdir = "./data/derived_data/NaturalEarth/ne_10m_admin_0_countries_lakes/"
+    paste0(ne_dir,"ne_10m_admin_0_countries_lakes.zip"), 
+    exdir = paste0(ne_dir,"ne_10m_admin_0_countries_lakes/")
   )
   
-  ne_10m_admin_0_countries_lakes <- "./data/derived_data/NaturalEarth/ne_10m_admin_0_countries_lakes/ne_10m_admin_0_countries_lakes.shp" %>%
+  ne_10m_admin_0_countries_lakes <- 
+    paste0(ne_dir,"ne_10m_admin_0_countries_lakes/ne_10m_admin_0_countries_lakes.shp") %>%
     sf::st_read() %>%
     sf::st_transform(sf::st_crs(ASIA_poly)) %>%
     sf::st_intersection(ASIA_poly) %>%
@@ -187,7 +194,7 @@ if(!params$clean & file.exists("./data/derived_data/ASIA_rast_etopo5.tif")){
                    sf::st_transform("+proj=longlat +ellps=clrk66 +no_defs") %>%
                    as("Spatial"),
                  inverse = TRUE) %T>%
-    raster::writeRaster(filename = "./data/derived_data/ASIA_rast_etopo5.tif",
+    raster::writeRaster(filename = paste0(raw_data,"ASIA_rast_etopo5.tif"),
                         datatype="INT2S",
                         options=c("COMPRESS=DEFLATE", "ZLEVEL=9", "INTERLEAVE=BAND", "PHOTOMETRIC=MINISWHITE"),
                         overwrite=T,
@@ -195,7 +202,8 @@ if(!params$clean & file.exists("./data/derived_data/ASIA_rast_etopo5.tif")){
   rm(ETOPO5)
 }
 
-countries <- "./data/derived_data/NaturalEarth/ne_10m_admin_0_countries_lakes/ne_10m_admin_0_countries_lakes.shp" %>%
+countries <- 
+  paste0(ne_dir,"ne_10m_admin_0_countries_lakes/ne_10m_admin_0_countries_lakes.shp") %>%
   sf::st_read()  %>%
   sf::st_transform(sf::st_crs(ASIA_poly)) %>%
   sf::st_intersection(ASIA_poly) %>%
@@ -222,8 +230,8 @@ GHCN.data.final <- prepare_ghcn(region = ASIA_poly %>%
                                 label = "ASIA_poly",
                                 calibration.years = calibration.years,
                                 google_maps_elevation_api_key = params$google_maps_elevation_api_key,
-                                raw_dir = "./data/raw_data/ghcn/",
-                                derived_dir = "./data/derived_data/ghcn/",
+                                raw_dir = paste0(raw_data,"ghcn/"),
+                                derived_dir = paste0(derived_data,"ghcn/"),
                                 force.redo = params$clean)
 message("GHCN preparation complete: ", capture.output(Sys.time() - time_check))
 ## An example of plotting the GHCN data
@@ -236,7 +244,9 @@ message("GHCN preparation complete: ", capture.output(Sys.time() - time_check))
 # Run the script that transforms the Marcott et al. 2013 data into standard scores.
 message("Preparing the Marcott et al. 2013 data")
 time_check <-  Sys.time()
-marcott2013 <- prepare_marcott(calibration.years = calibration.years)
+marcott2013 <- prepare_marcott(calibration.years = calibration.years,
+                               raw_dir = paste0(raw_data,"marcott2013/"),
+                               derived_dir = paste0(derived_data,"marcott2013/"))
 message("Marcott et al. 2013 data preparation complete: ", capture.output(Sys.time() - time_check))
 
 ```
@@ -251,7 +261,7 @@ time_check <-  Sys.time()
 sample.points <- -20:20
 
 # Read in data on different crop GDD needs
-crop_GDD <- readr::read_csv("../inst/crops.csv",
+crop_GDD <- readr::read_csv(here::here("inst/crops.csv"),
                             col_types = readr::cols(
                               cultivar_long = readr::col_character(),
                               cultivar = readr::col_character(),
@@ -262,7 +272,7 @@ crop_GDD <- readr::read_csv("../inst/crops.csv",
                             ))
 
 crop_GDD %>%
-  readr::write_csv("./data/derived_data/Table_S1_crops.csv")
+  readr::write_csv(paste0(derived_data,"/crops.csv"))
 
 # Transform GHCN data to GDDs of each base, and modulate to Marcott
 GDDs <- sort(unique(crop_GDD$t_base))
@@ -272,7 +282,7 @@ GHCN.GDD.incremented.sd <-
                     # purrr::map(GDDs,
                     .options = furrr::future_options(
                       packages = c("magrittr",
-                                   "gutaker2019"),
+                                   "gutaker2020"),
                       globals = c("sample.points",
                                   "GHCN.data.final")),
                     .f = function(base){
@@ -352,14 +362,14 @@ krige_and_predict <- function(dt){
 }
 
 # Calculate gdd kriging models for each crop
-gdd_model_files <- paste0("./data/derived_data/models/",crop_GDD$cultivar,"_models.rds")
+gdd_model_files <- paste0(derived_data,"models/",crop_GDD$cultivar,"_models.rds")
 
 if(params$clean){
-  unlink("./data/derived_data/models/", recursive = TRUE, force = TRUE)
-  dir.create("./data/derived_data/models/", recursive = TRUE, showWarnings = F)
+  unlink(paste0(derived_data,"models/"), recursive = TRUE, force = TRUE)
+  dir.create(paste0(derived_data,"models/"), recursive = TRUE, showWarnings = F)
   crop_GDD_run <- crop_GDD
 }else{
-  dir.create("./data/derived_data/models/", recursive = TRUE, showWarnings = F)
+  dir.create(paste0(derived_data,"models/"), recursive = TRUE, showWarnings = F)
   crop_GDD_run <- crop_GDD[!file.exists(gdd_model_files),]
 }
 
@@ -406,7 +416,7 @@ if(nrow(crop_GDD_run) > 0){
                                      "dplyr",
                                      "magrittr",
                                      "readr",
-                                     "gutaker2019")),
+                                     "gutaker2020")),
                       .f = function(crop){
                         
                         # Threshold for indicator kriging
@@ -419,12 +429,12 @@ if(nrow(crop_GDD_run) > 0){
                           apply(1,smooth.preds) %>%
                           tibble::tibble(model = .) %>%
                           maptools::spCbind(ASIA_rast_etopo5.sp,.) %>%
-                          readr::write_rds(paste0("./data/derived_data/models/",
+                          readr::write_rds(paste0(derived_data,"models/",
                                                   crop_GDD_run[crop,"cultivar"],
                                                   "_models.rds"), 
                                            compress = "xz")
                         
-                        return(paste0("./data/derived_data/models/",
+                        return(paste0(derived_data,"models/",
                                       crop_GDD_run[crop,"cultivar"],
                                       "_models.rds"))
                         
@@ -449,9 +459,9 @@ message("Calculation indicator Krige models complete: ", capture.output(Sys.time
 message("Generating niche reconstructions")
 time_check <-  Sys.time()
 if(params$clean){
-  unlink("./data/derived_data/recons/", recursive = TRUE, force = TRUE)
+  unlink(paste0(derived_data,"recons/"), recursive = TRUE, force = TRUE)
 }
-dir.create("./data/derived_data/recons/", recursive = TRUE, showWarnings = F)
+dir.create(paste0(derived_data,"recons/"), recursive = TRUE, showWarnings = F)
 
 # Create the plan for (possibly parallel) execution
 future::plan(future::multisession, 
@@ -463,69 +473,69 @@ future::plan(future::multisession,
                1),
              gc = TRUE)
 
-junk <- furrr::future_map(crop_GDD$cultivar,    
-                          .options = furrr::future_options(
-                            packages = c("fields",
-                                         "dplyr",
-                                         "magrittr",
-                                         "sp",
-                                         "readr",
-                                         "gutaker2019")),
-                          function(crop){
-                            
-                            if(file.exists(paste0("./data/derived_data/recons/",
-                                                  crop,
-                                                  "_recons.rds")))
-                              return()
-                            
-                            if(!file.exists(paste0("./data/derived_data/models/",
-                                                   crop,
-                                                   "_models.rds"))) 
-                              stop("Models for ",
-                                   crop,
-                                   " are missing! Aborting.")
-                            
-                            Zs <- c("Z_Lower","Z","Z_Upper")
-                            
-                            crop.models <- readr::read_rds(paste0("./data/derived_data/models/",
-                                                                  crop,
-                                                                  "_models.rds"))
-                            
-                            out <- purrr::map(Zs, 
-                                              function(z){
-                                                suppressWarnings(crop.models@data %$%
-                                                                   model %>%
-                                                                   purrr::map(
-                                                                     function(x){
-                                                                       x %>%
-                                                                         predict(newdata = marcott2013[[z]]) %>%
-                                                                         magrittr::multiply_by(100) %>%
-                                                                         round() %>%
-                                                                         as.integer()
-                                                                     }) %>%
-                                                                   do.call(rbind, .) %>%
-                                                                   tibble::as_tibble() %>%
-                                                                   magrittr::set_colnames(marcott2013$YearBP) %>%
-                                                                   new("SpatialPointsDataFrame",
-                                                                       data = .,
-                                                                       coords.nrs = crop.models@coords.nrs,
-                                                                       coords = crop.models@coords,
-                                                                       bbox = crop.models@bbox,
-                                                                       proj4string = crop.models@proj4string) %>%
-                                                                   as("SpatialPixelsDataFrame") %>%
-                                                                   raster::brick() %>%
-                                                                   raster::setZ(marcott2013$YearBP,
-                                                                                name="Years BP"))
-                                              }) %>%
-                              magrittr::set_names(Zs) %>%
-                              readr::write_rds(paste0("./data/derived_data/recons/",
-                                                      crop,
-                                                      "_recons.rds"),
-                                               compress = "xz",
-                                               compression = 9)
-                            
-                            return()
-                          })
+furrr::future_walk(crop_GDD$cultivar,    
+                   .options = furrr::future_options(
+                     packages = c("fields",
+                                  "dplyr",
+                                  "magrittr",
+                                  "sp",
+                                  "readr",
+                                  "gutaker2020")),
+                   function(crop){
+                     
+                     if(file.exists(paste0(derived_data,"recons/",
+                                           crop,
+                                           "_recons.rds")))
+                       return()
+                     
+                     if(!file.exists(paste0(derived_data,"models/",
+                                            crop,
+                                            "_models.rds"))) 
+                       stop("Models for ",
+                            crop,
+                            " are missing! Aborting.")
+                     
+                     Zs <- c("Z_Lower","Z","Z_Upper")
+                     
+                     crop.models <- readr::read_rds(paste0(derived_data,"models/",
+                                                           crop,
+                                                           "_models.rds"))
+                     
+                     purrr::walk(Zs, 
+                                 function(z){
+                                   suppressWarnings(crop.models@data %$%
+                                                      model %>%
+                                                      purrr::map(
+                                                        function(x){
+                                                          x %>%
+                                                            predict(newdata = marcott2013[[z]]) %>%
+                                                            magrittr::multiply_by(100) %>%
+                                                            round() %>%
+                                                            as.integer()
+                                                        }) %>%
+                                                      do.call(rbind, .) %>%
+                                                      tibble::as_tibble() %>%
+                                                      magrittr::set_colnames(marcott2013$YearBP) %>%
+                                                      new("SpatialPointsDataFrame",
+                                                          data = .,
+                                                          coords.nrs = crop.models@coords.nrs,
+                                                          coords = crop.models@coords,
+                                                          bbox = crop.models@bbox,
+                                                          proj4string = crop.models@proj4string) %>%
+                                                      as("SpatialPixelsDataFrame") %>%
+                                                      raster::brick() %>%
+                                                      raster::setZ(marcott2013$YearBP,
+                                                                   name="Years BP"))
+                                 }) %>%
+                       magrittr::set_names(Zs) %>%
+                       readr::write_rds(paste0(derived_data,"recons/",
+                                               crop,
+                                               "_recons.rds"),
+                                        compress = "xz",
+                                        compression = 9)
+                     
+                     return()
+                   })
 
 message("Generation of niche reconstructions complete: ", capture.output(Sys.time() - time_check))
 
@@ -540,20 +550,20 @@ time_check <-  Sys.time()
 purrr::walk(crop_GDD %>%
               split(as.factor(crop_GDD$crop)),
             function(x){
-              if(file.exists(paste0("./data/derived_data/recons/all_",x$crop[[1]],".rds"))) return()
+              if(file.exists(paste0(derived_data,"recons/all_",x$crop[[1]],".rds"))) return()
               n_crops <- length(x$crop)
               if(n_crops == 1){
-                file.copy(paste0("./data/derived_data/recons/",
+                file.copy(paste0(derived_data,"recons/",
                                  x$cultivar[[1]],
                                  "_recons.rds"),
-                          paste0("./data/derived_data/recons/all_",
+                          paste0(derived_data,"recons/all_",
                                  x$crop[[1]],
                                  ".rds"))
                 return()
               }
               
               test <- purrr::map(x$cultivar, function(cultivar){
-                paste0("./data/derived_data/recons/",cultivar,"_recons.rds") %>%
+                paste0(derived_data,"recons/",cultivar,"_recons.rds") %>%
                   readr::read_rds()
               }) %>%
                 purrr::transpose() %>%
@@ -564,7 +574,7 @@ purrr::walk(crop_GDD %>%
                     round() %>%
                     as.integer()
                 }) %>%
-                readr::write_rds(paste0("./data/derived_data/recons/all_",
+                readr::write_rds(paste0(derived_data,"recons/all_",
                                         x$crop[[1]],
                                         ".rds"),
                                  compress = "xz",
@@ -583,7 +593,7 @@ message("Combining like crop niches complete: ", capture.output(Sys.time() - tim
 message("Plotting cultivar niche reconstructions")
 time_check <-  Sys.time()
 
-dir.create("./figures/cultivar_niches/",
+dir.create(paste0(figures,"cultivar_niches/"),
            recursive = TRUE,
            showWarnings = FALSE)
 
@@ -599,10 +609,12 @@ gdd.recons <-
                                            "°C, Required GDD: ",
                                            crop_GDD[n,]$min_gdd)
                    
-                   if(file.exists(paste0("./figures/cultivar_niches/",cultivar,".pdf")) & file.exists(paste0("./figures/cultivar_niches/",cultivar,".mp4")))
-                     return(paste0("./figures/cultivar_niches/",cultivar,".pdf"))
+                   if(
+                     file.exists(paste0(figures,"cultivar_niches/",cultivar,".pdf")) & 
+                     file.exists(paste0(figures,"cultivar_niches/",cultivar,".mp4"))
+                   ) return(paste0(figures,"cultivar_niches/",cultivar,".pdf"))
                    
-                   rasts <- readr::read_rds(paste0("./data/derived_data/recons/",cultivar,"_recons.rds")) %>%
+                   rasts <- readr::read_rds(paste0(derived_data,"recons/",cultivar,"_recons.rds")) %>%
                      purrr::map(function(x){
                        x %>%
                          magrittr::extract2(which(.@z$`Years BP` > 1000)) %>%
@@ -624,12 +636,12 @@ gdd.recons <-
                              rev() %>%
                              colorRampPalette(.))(length(breaks) - 1)
                    
-                   if(!file.exists(paste0("./figures/cultivar_niches/",cultivar,".pdf")))
-                     gutaker2019:::space_time_plot(
+                   if(!file.exists(paste0(figures,"cultivar_niches/",cultivar,".pdf")))
+                     gutaker2020:::space_time_plot(
                        the_brick = rasts$Z,
                        the_brick_lower = rasts$Z_Lower,
                        the_brick_upper = rasts$Z_Upper,
-                       out_file = paste0("./figures/cultivar_niches/",cultivar,".pdf"),
+                       out_file = paste0(figures,"cultivar_niches/",cultivar,".pdf"),
                        title = title,
                        time = years,
                        timelim = c(max(years),min(years)),
@@ -643,25 +655,26 @@ gdd.recons <-
                        zcolors = pal
                      )
                    
-                   if(!file.exists(paste0("./figures/cultivar_niches/",cultivar,".mp4")))
-                     gutaker2019:::space_time_video(                       the_brick = rasts$Z,
-                                                                           the_brick_lower = rasts$Z_Lower,
-                                                                           the_brick_upper = rasts$Z_Upper,
-                                                                           out_file = paste0("./figures/cultivar_niches/",cultivar,".mp4"),
-                                                                           title = title,
-                                                                           time = years,
-                                                                           timelim = c(max(years),min(years)),
-                                                                           timeaxis =  seq(from = max(years)-500,
-                                                                                           to = min(years),
-                                                                                           by = -500),
-                                                                           timelab = "Years BP",
-                                                                           zbreaks = breaks,
-                                                                           zlab = "Probability of being in niche",
-                                                                           zaxis = seq(0,100,10),
-                                                                           zcolors = pal
+                   if(!file.exists(paste0(figures,"cultivar_niches/",cultivar,".mp4")))
+                     gutaker2020:::space_time_video(                       
+                       the_brick = rasts$Z,
+                       the_brick_lower = rasts$Z_Lower,
+                       the_brick_upper = rasts$Z_Upper,
+                       out_file = paste0(figures,"cultivar_niches/",cultivar,".mp4"),
+                       title = title,
+                       time = years,
+                       timelim = c(max(years),min(years)),
+                       timeaxis =  seq(from = max(years)-500,
+                                       to = min(years),
+                                       by = -500),
+                       timelab = "Years BP",
+                       zbreaks = breaks,
+                       zlab = "Probability of being in niche",
+                       zaxis = seq(0,100,10),
+                       zcolors = pal
                      )
                    
-                   return(paste0("./figures/cultivar_niches/",cultivar,".pdf"))
+                   return(paste0(figures,"cultivar_niches/",cultivar,".pdf"))
                    
                  })
 
@@ -677,32 +690,12 @@ message("Plotting of cultivar niche reconstructions complete: ", capture.output(
 message("Plotting crop niche reconstructions")
 time_check <-  Sys.time()
 
-# Combine the sites with the density data
-site_densities <- niche_densities %>%
-  dplyr::filter(!purrr::map_lgl(Niche, is.null)) %>%
-  dplyr::mutate(Density_Lower = marcott2013$YearBP[purrr::map(Density, "CI") %>%
-                                                     purrr::map_dbl("lower")],
-                Density_Upper = marcott2013$YearBP[purrr::map(Density, "CI") %>%
-                                                     purrr::map_dbl("upper")]) %>%
-  dplyr::select(-Density) %>%
-  dplyr::filter(!is.na(Density_Lower)) %>%
-  dplyr::left_join(sites %>%
-                     sf::st_set_geometry(NULL), 
-                   by = c("Site", "Period", "Crop")) %>%
-  dplyr::mutate(Niche = purrr::map(Niche, function(x){
-    x$Niche <-
-      tibble::tibble(`Year BP` = marcott2013$YearBP, 
-                     Niche = x$Niche)
-    return(x)
-  }))
-
 crops <- crop_GDD %>%
-  dplyr::filter(crop %in% site_densities$Crop) %>%
   dplyr::select(crop_long, crop) %>%
   dplyr::distinct()
 
 message("Generating niche videos.")
-dir.create("./figures/crop_niches",
+dir.create(paste0(figures,"crop_niches/"),
            recursive = TRUE,
            showWarnings = FALSE)
 
@@ -712,10 +705,10 @@ for(n in 1:nrow(crops)){
   
   title <- stringr::str_c(crops[n,]$crop_long)
   
-  if(file.exists(paste0("./figures/crop_niches/all_",crop,".pdf")) & file.exists(paste0("./figures/crop_niches/all_",crop,".mp4")))
+  if(file.exists(paste0(figures,"crop_niches/all_",crop,".pdf")) & file.exists(paste0(figures,"crop_niches/all_",crop,".mp4")))
     next
   
-  rasts <- readr::read_rds(paste0("./data/derived_data/recons/all_",crop,".rds")) %>%
+  rasts <- readr::read_rds(paste0(derived_data,"recons/all_",crop,".rds")) %>%
     purrr::map(function(x){
       x %>%
         magrittr::extract2(which((x %>%
@@ -741,11 +734,11 @@ for(n in 1:nrow(crops)){
             rev() %>%
             colorRampPalette(.))(length(breaks) - 1)
   
-  if(!file.exists(paste0("./figures/crop_niches/all_",crop,".pdf")))
-    gutaker2019:::space_time_plot(the_brick = rasts$Z,
+  if(!file.exists(paste0(figures,"crop_niches/all_",crop,".pdf")))
+    gutaker2020:::space_time_plot(the_brick = rasts$Z,
                                   the_brick_lower = rasts$Z_Lower,
                                   the_brick_upper = rasts$Z_Upper,
-                                  out_file = paste0("./figures/crop_niches/all_",crop,".pdf"),
+                                  out_file = paste0(figures,"crop_niches/all_",crop,".pdf"),
                                   title = title,
                                   time = years,
                                   timelim = c(max(years),min(years)),
@@ -760,68 +753,11 @@ for(n in 1:nrow(crops)){
     )
   
   
-  if(!file.exists(paste0("./figures/crop_niches/all_",crop,".mp4"))){
-    # A function to extract site locations for a given year and crop, and plot them
-    sites_plot <- function(years = NULL,
-                           crops = NULL,
-                           scale = scales::area_pal(c(0,1))){
-      x_plot <- site_densities
-      year_idx <- which(marcott2013$YearBP == years)
-      
-      if(!is.null(crops)){
-        x_plot %<>%
-          dplyr::filter(Crop %in% crops)
-      }
-      
-      cexs <- purrr::map(x_plot$Niche,c("Niche","Niche")) %>%
-        purrr::map(year_idx) %>%
-        unlist() %>%
-        scale()
-      
-      if(cexs %>%
-         is.na() %>%
-         all()) return() #Don't plot if no sites during this period
-      
-      x_plot %<>%
-        dplyr::filter(!is.na(cexs))
-      
-      cexs <- cexs[!is.na(cexs)]
-      
-      x_plot %$%
-        plot(geometry,
-             cex = cexs,
-             pch = 1,
-             lwd = 3,
-             col = "white",
-             add = T)
-      x_plot %$%
-        plot(geometry,
-             cex = cexs,
-             pch = 1,
-             lwd = 1.5,
-             col = "black",
-             add = T)
-    }
-    
-    sites_legend <- function(){
-      legend("bottomright",
-             title = "Site % probability \nof being in niche",
-             legend = seq(0,100,20),
-             pch = 1,
-             pt.lwd = 1.5,
-             col = "black",
-             pt.cex = scales::area_pal(c(0.5,3))(seq(0,1,0.2)),
-             bty = "n",
-             y.intersp = 1.5,
-             cex = 0.8,
-             text.font = 2
-      )
-    }
-    
-    gutaker2019:::space_time_video(the_brick = rasts$Z,
+  if(!file.exists(paste0(figures,"crop_niches/all_",crop,".mp4"))){
+    gutaker2020:::space_time_video(the_brick = rasts$Z,
                                    the_brick_lower = rasts$Z_Lower,
                                    the_brick_upper = rasts$Z_Upper,
-                                   out_file = paste0("./figures/crop_niches/all_",crop,".mp4"),
+                                   out_file = paste0(figures,"crop_niches/all_",crop,".mp4"),
                                    title = title,
                                    time = years,
                                    timelim = c(max(years),min(years)),
@@ -832,25 +768,18 @@ for(n in 1:nrow(crops)){
                                    zbreaks = breaks,
                                    zlab = "Probability of being in niche",
                                    zaxis = seq(0,100,10),
-                                   zcolors = pal,
-                                   extra_plot_fun = purrr::partial(sites_plot,
-                                                                   crops = crop,
-                                                                   scale = scales::area_pal(c(0.5,3))),
-                                   extra_legend_fun = sites_legend
+                                   zcolors = pal
     )
     
   }
 }
 
 
-
-
-
 # Create a static plot for paper publication
 # A function to extract data from a crop raster brick
 tidyCrop <- function(x, years){
   x %>%
-    paste0("./data/derived_data/recons/all_",.,".rds") %>%
+    paste0(derived_data,"recons/all_",.,".rds") %>%
     readr::read_rds() %$%
     Z %>%
     magrittr::extract2(stringr::str_c("X",years)) %>%
@@ -873,21 +802,6 @@ pal <- (RColorBrewer::brewer.pal(10, "Spectral") %>%
 
 # A function to create a plot of years and crops
 facet_niche <- function(crops, years){
-  these_sites <- years %>%
-    purrr::map(function(year){
-      site_densities %>%
-        dplyr::mutate(Year = year) %>%
-        dplyr::filter(Density_Lower <= Year & Density_Upper >= Year,
-                      Crop %in% crops) %>%
-        dplyr::mutate(Longitude = sf::st_coordinates(geometry)[,1],
-                      Latitude = sf::st_coordinates(geometry)[,2]) %>%
-        dplyr::select(Site, Longitude, Latitude, Crop, Year)
-    }) %>%
-    do.call(rbind, .) %>%
-    dplyr::mutate(Year = factor(Year, levels = years) %>%
-                    forcats::fct_relabel(function(x){stringr::str_c(x," cal. BP")}),
-                  Crop = dplyr::recode_factor(Crop,
-                                              rice = "Rice"))
   
   these_rasters <- crops %>%
     purrr::map(tidyCrop, years = years) %>%
@@ -904,10 +818,6 @@ facet_niche <- function(crops, years){
                                                 y = Latitude,
                                                 fill = Niche),
                          show.legend = TRUE) +
-    ggplot2::geom_point(data = these_sites,
-                        mapping = ggplot2::aes(x = Longitude,
-                                               y = Latitude),
-                        size = 1) +
     ggplot2::coord_quickmap() +
     ggplot2::facet_grid(Crop ~ Year,
                         switch = "y")
@@ -915,10 +825,10 @@ facet_niche <- function(crops, years){
   return(p)
 }
 
-p <- facet_niche(crops = c("rice"),
+p <- facet_niche(crops = crops$crop,
                  years = c(4410, 3550))
 
-cairo_pdf("./figures/Figure_2_facet_niche.pdf", width = 7.2, height = 10.3)
+cairo_pdf(paste0(figures,"Figure_2_facet_niche.pdf"), width = 7.2, height = 10.3)
 print({
   p +
     ggplot2::scale_fill_manual(values = pal,
@@ -978,7 +888,7 @@ japan_thai_data <-
     "Indica" = "indica") %>%
   purrr::map(
     function(crop){
-      readr::read_rds(paste0("./data/derived_data/recons/all_",crop,".rds")) %>%
+      readr::read_rds(paste0(derived_data,"recons/all_",crop,".rds")) %>%
         purrr::map(function(y){
           y.vx <- velox::velox(y)
           y.vx$extract(japan_thai,
@@ -1023,7 +933,7 @@ japan_thai_data %>%
   ggplot2::theme(legend.position="bottom",
                  plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 0, unit = "pt"))
 
-ggplot2::ggsave("./figures/japan_thailand_compare.pdf",
+ggplot2::ggsave(paste0(figures,"japan_thailand_compare.pdf"),
                 width = 6.5,
                 height = 6)
 
@@ -1092,80 +1002,11 @@ test %>%
   ggplot2::theme(legend.position="bottom",
                  plot.margin = ggplot2::margin(t = 10, r = 10, b = 0, l = 0, unit = "pt"))
 
-ggplot2::ggsave("./figures/japan_thailand_GDD_compare.pdf",
+ggplot2::ggsave(paste0(figures,"japan_thailand_GDD_compare.pdf"),
                 width = 6.5,
                 height = 6.5/1.618)
 
 ```
-
-# Copy Data Files
-file.copy(from = "./data/derived_data/Data_file_S1_sites_dates.xlsx",
-to = "./submission/Data_file_S1_sites_dates.xlsx",
-overwrite = TRUE)
-
-file.copy(from = "./figures/Data_file_S2_all_crossplot.html",
-to = "./submission/Data_file_S2_all_crossplot.html",
-overwrite = TRUE)
-
-# Copy Movies
-file.copy(from = "./figures/crop_niches/all_wheat.mp4",
-to = "./submission/Movie_S1_wheat.mp4",
-overwrite = TRUE)
-file.copy(from = "./figures/crop_niches/all_barley.mp4",
-to = "./submission/Movie_S2_barley.mp4",
-overwrite = TRUE)
-file.copy(from = "./figures/crop_niches/all_broomcorn_millet.mp4",
-to = "./submission/Movie_S3_broomcorn_millet.mp4",
-overwrite = TRUE)
-file.copy(from = "./figures/crop_niches/all_foxtail_millet.mp4",
-to = "./submission/Movie_S4_foxtail_millet.mp4",
-overwrite = TRUE)
-file.copy(from = "./figures/crop_niches/all_buckwheat.mp4",
-to = "./submission/Movie_S5_buckwheat.mp4",
-overwrite = TRUE)
-file.copy(from = "./figures/crop_niches/all_rice.mp4",
-to = "./submission/Movie_S6_rice.mp4",
-overwrite = TRUE)
-
-# Write the compendium
-system(paste0("cp -r ../ ",tempdir(),"/Data_file_S3_research_compendium/"))
-
-system(paste("tar -zcf submission/Data_file_S3_research_compendium.tar.gz",
-"-C ",tempdir(),
-"--exclude='vignettes/data'",
-"--exclude='vignettes/figures'",
-"--exclude='vignettes/submission'",
-"--exclude='vignettes/GutakerEtAl2019_cache'",
-"--exclude='vignettes/zenodo'",
-"--exclude='.git'",
-"Data_file_S3_research_compendium"))
-
-```
-
-
-## Create Zenodo archive {-}
-
-```{r zenodo, cache = FALSE}
-unlink("./zenodo",
-recursive = TRUE, 
-force = TRUE)
-
-dir.create("./zenodo",
-recursive = TRUE,
-showWarnings = FALSE)
-
-system("tar -zcf ./zenodo/gutaker2019-1.0.0-output.tar.gz submission figures data")
-```
-
-
-<!-- The following line inserts a page break when the output is MS Word. For page breaks in PDF, use \newpage on its own line.  -->
-##### pagebreak
-
-## References {-}
-<!-- The following line ensures the references appear here for the MS Word or HTML output files, rather than right at the end of the document (this will not work for PDF files):  -->
-<div id="refs"></div>
-
-##### pagebreak
 
 ## Colophon {-}
 
