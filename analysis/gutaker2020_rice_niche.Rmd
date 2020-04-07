@@ -306,7 +306,7 @@ GHCN.GDD.incremented.sd <-
                                        
                                      }) %>%
                         dplyr::left_join(GHCN.data.final$spatial %>%
-                                           dplyr::as_data_frame() %>%
+                                           tibble::as_tibble() %>%
                                            magrittr::set_names(c("ID",
                                                                  "NAME",
                                                                  "elevation",
@@ -546,39 +546,48 @@ message("Generation of niche reconstructions complete: ", capture.output(Sys.tim
 message("Combining like crop niches")
 time_check <-  Sys.time()
 
-purrr::walk(crop_GDD %>%
-              split(as.factor(crop_GDD$crop)),
-            function(x){
-              if(file.exists(paste0(derived_data,"recons/all_",x$crop[[1]],".rds"))) return()
-              n_crops <- length(x$crop)
-              if(n_crops == 1){
-                file.copy(paste0(derived_data,"recons/",
-                                 x$cultivar[[1]],
-                                 "_recons.rds"),
-                          paste0(derived_data,"recons/all_",
-                                 x$crop[[1]],
-                                 ".rds"))
-                return()
-              }
-              
-              test <- purrr::map(x$cultivar, function(cultivar){
-                paste0(derived_data,"recons/",cultivar,"_recons.rds") %>%
-                  readr::read_rds()
-              }) %>%
-                purrr::transpose() %>%
-                purrr::map(function(x){
-                  x %>%
-                    Reduce(f = "+", x = .) %>%
-                    magrittr::divide_by(n_crops) %>%
-                    round() %>%
-                    as.integer()
-                }) %>%
-                readr::write_rds(paste0(derived_data,"recons/all_",
-                                        x$crop[[1]],
-                                        ".rds"),
-                                 compress = "xz",
-                                 compression = 9)
-            })
+# Force Raster to load large rasters into memory
+raster::rasterOptions(chunksize = 2e+10,
+                      maxmemory = 2e+11)
+
+crop_GDD %>%
+  split(as.factor(crop_GDD$crop)) %>%
+  purrr::walk(function(x){
+    
+    if(file.exists(paste0(derived_data,"recons/all_",x$crop[[1]],".rds"))) return()
+    n_crops <- length(x$crop)
+    
+    if(n_crops == 1){
+      file.copy(paste0(derived_data,"recons/",
+                       x$cultivar[[1]],
+                       "_recons.rds"),
+                paste0(derived_data,"recons/all_",
+                       x$crop[[1]],
+                       ".rds"))
+      return()
+    }
+    
+    x %$%
+      cultivar %>%
+      purrr::map(function(cultivar){
+        paste0(derived_data,"recons/",cultivar,"_recons.rds") %>%
+          readr::read_rds()
+      }) %>%
+      purrr::transpose() %>%
+      purrr::map(function(x){
+        x %>%
+          Reduce(f = "+", x = .) %>%
+          magrittr::divide_by(n_crops) %>%
+          round() %>%
+          raster::readAll() %>%
+          magrittr::set_names(names(x[[1]]))
+      }) %>%
+      readr::write_rds(paste0(derived_data,"recons/all_",
+                              x$crop[[1]],
+                              ".rds"),
+                       compress = "xz",
+                       compression = 9)
+  })
 
 message("Combining like crop niches complete: ", capture.output(Sys.time() - time_check))
 
@@ -607,10 +616,11 @@ gdd.recons <-
                    cultivar <- crop_GDD[n,]$cultivar
                    
                    title <- stringr::str_c(crop_GDD[n,]$cultivar_long,
-                                           " \u2014 T_base: ",
+                                           " \u2014 Required GDD: ",
+                                           crop_GDD[n,]$min_gdd,
+                                           " at a ",
                                            crop_GDD[n,]$t_base,
-                                           "°C, Required GDD: ",
-                                           crop_GDD[n,]$min_gdd)
+                                           "°C base")
                    
                    rasts <- readr::read_rds(paste0(derived_data,"recons/",cultivar,"_recons.rds")) %>%
                      purrr::map(function(x){
@@ -676,97 +686,6 @@ message("Plotting of cultivar niche reconstructions complete: ", capture.output(
 
 ## Generate niche videos {-}
 ```{r niche-videos}
-
-## Plotting crop niche with associated sites
-# create the cluster for parallel computation
-message("Plotting crop niche reconstructions")
-time_check <-  Sys.time()
-
-crops <- crop_GDD %>%
-  dplyr::select(crop_long, crop) %>%
-  dplyr::distinct()
-
-message("Generating niche videos.")
-dir.create(paste0(figures,"crop_niches/"),
-           recursive = TRUE,
-           showWarnings = FALSE)
-
-for(n in 1:nrow(crops)){
-  
-  crop <- crops[n,]$crop
-  
-  title <- stringr::str_c(crops[n,]$crop_long)
-  
-  if(file.exists(paste0(figures,"crop_niches/all_",crop,".pdf")) & file.exists(paste0(figures,"crop_niches/all_",crop,".mp4")))
-    next
-  
-  rasts <- readr::read_rds(paste0(derived_data,"recons/all_",crop,".rds")) %>%
-    purrr::map(function(x){
-      x %>%
-        magrittr::extract2(which((x %>%
-                                    names() %>%
-                                    gsub(pattern = "X",
-                                         replacement = "",
-                                         x = .) %>%
-                                    as.numeric()) > 1000)) %>%
-        # raster:::readAll() %>%
-        magrittr::extract2(raster::nlayers(.):1)
-    })
-  
-  years <- rasts[[1]] %>%
-    names() %>%
-    gsub(pattern = "X",
-         replacement = "",
-         x = .) %>%
-    as.numeric()
-  
-  breaks <- seq(0, 100, 10)
-  
-  pal <- (RColorBrewer::brewer.pal(10, "Spectral") %>%
-            rev() %>%
-            colorRampPalette(.))(length(breaks) - 1)
-  
-  if(!file.exists(paste0(figures,"crop_niches/all_",crop,".pdf")))
-    gutaker2020:::space_time_plot(the_brick = rasts$Z,
-                                  the_brick_lower = rasts$Z_Lower,
-                                  the_brick_upper = rasts$Z_Upper,
-                                  out_file = paste0(figures,"crop_niches/all_",crop,".pdf"),
-                                  title = title,
-                                  time = years,
-                                  timelim = c(max(years),min(years)),
-                                  timeaxis =  seq(from = max(years)-500,
-                                                  to = min(years),
-                                                  by = -500),
-                                  timelab = "Years BP",
-                                  zbreaks = breaks,
-                                  zlab = "Probability of being in niche",
-                                  zaxis = seq(0,100,10),
-                                  zcolors = pal
-    )
-  
-  
-  if(!file.exists(paste0(figures,"crop_niches/all_",crop,".mp4"))){
-    gutaker2020:::space_time_video(the_brick = rasts$Z,
-                                   the_brick_lower = rasts$Z_Lower,
-                                   the_brick_upper = rasts$Z_Upper,
-                                   out_file = paste0(figures,"crop_niches/all_",crop,".mp4"),
-                                   title = title,
-                                   time = years,
-                                   timelim = c(max(years),min(years)),
-                                   timeaxis =  seq(from = max(years)-500,
-                                                   to = min(years),
-                                                   by = -500),
-                                   timelab = "Years BP",
-                                   zbreaks = breaks,
-                                   zlab = "Probability of being in niche",
-                                   zaxis = seq(0,100,10),
-                                   zcolors = pal
-    )
-    
-  }
-}
-
-
 # Create a static plot for paper publication
 # A function to extract data from a crop raster brick
 tidyCrop <- function(x, years){
@@ -817,48 +736,6 @@ facet_niche <- function(crops, years){
   return(p)
 }
 
-p <- facet_niche(crops = crops$crop,
-                 years = c(4410, 3550))
-
-cairo_pdf(paste0(figures,"Figure_2_facet_niche.pdf"), width = 7.2, height = 10.3)
-print({
-  p +
-    ggplot2::scale_fill_manual(values = pal,
-                               labels = c("0–10%",
-                                          "10–20%",
-                                          "20–30%",
-                                          "30–40%",
-                                          "40–50%",
-                                          "50–60%",
-                                          "60–70%",
-                                          "70–80%",
-                                          "80–90%",
-                                          "90–100%"),
-                               drop = FALSE,
-                               name = "Probability of being in the thermal niche",
-                               guide = ggplot2::guide_legend(
-                                 direction = "horizontal",
-                                 keyheight = ggplot2::unit(0.1, units = "in"),
-                                 keywidth = ggplot2::unit(6/10, units = "in"),
-                                 title.position = 'top',
-                                 title.hjust = 0.5,
-                                 label.hjust = 0,
-                                 nrow = 1,
-                                 byrow = T,
-                                 label.position = "bottom"
-                               )) +
-    ggplot2::scale_y_continuous(position = "right") +
-    ggplot2::theme_minimal(base_size = 7) +
-    ggplot2::theme(plot.margin = ggplot2::margin(0,0,0,0, "in"),
-                   strip.text.x = ggplot2::element_text(size = 8),
-                   strip.text.y = ggplot2::element_text(size = 8),
-                   legend.position = "bottom",
-                   legend.margin = ggplot2::margin(0,0,0.1,0, "in"),
-                   legend.title = ggplot2::element_text(face = "bold"))
-  
-})
-dev.off()
-
 message("Plotting of crop niche reconstructions complete: ", capture.output(Sys.time() - time_check))
 
 ```
@@ -875,13 +752,14 @@ japan_thai <- countries %>%
 #              fun = function(i){sum(!is.na(i))})[,1]
 
 japan_thai_data <-
-  c("Tropical Japonica" = "tropical",
-    "Temperate Japonica" = "temperate",
+  c("Tropical Japonica" = "tropical_japonica",
+    "Temperate Japonica" = "temperate_japonica",
     "Indica" = "indica") %>%
   purrr::map(
     function(crop){
       readr::read_rds(paste0(derived_data,"recons/all_",crop,".rds")) %>%
-        purrr::map(function(y){
+        purrr::map(
+          function(y){
           y.vx <- velox::velox(y)
           y.vx$extract(japan_thai,
                        fun = function(i){mean(i, na.rm = TRUE)}) %>%
@@ -895,8 +773,7 @@ japan_thai_data <-
             dplyr::select(`Years BP`,
                           dplyr::everything())
         }) 
-    }
-  ) %>%
+    }) %>%
   purrr::map(dplyr::bind_rows,
              .id = "Series") %>%
   dplyr::bind_rows(.id = "Crop") %>%
@@ -925,9 +802,10 @@ japan_thai_data %>%
   ggplot2::theme(legend.position="bottom",
                  plot.margin = ggplot2::margin(t = 0, r = 10, b = 0, l = 0, unit = "pt"))
 
-ggplot2::ggsave(paste0(figures,"japan_thailand_compare.pdf"),
+ggplot2::ggsave(paste0(figures,"supplementary_figure_20b.pdf"),
                 width = 6.5,
-                height = 6)
+                height = 6,
+                device = cairo_pdf)
 
 
 smooth.preds <- function(y){
@@ -994,9 +872,69 @@ test %>%
   ggplot2::theme(legend.position="bottom",
                  plot.margin = ggplot2::margin(t = 10, r = 10, b = 0, l = 0, unit = "pt"))
 
-ggplot2::ggsave(paste0(figures,"japan_thailand_GDD_compare.pdf"),
+ggplot2::ggsave(paste0(figures,"supplementary_figure_20a.pdf"),
                 width = 6.5,
-                height = 6.5/1.618)
+                height = 6.5/1.618,
+                device = cairo_pdf)
+
+```
+
+## Export figure source data for Nature Plants
+```{r export graph data}
+# Force Raster to load large rasters into memory
+raster::rasterOptions(chunksize = 2e+09,
+                      maxmemory = 2e+10)
+
+dir.create(paste0(figures,"source_data/"))
+
+crop_GDD %$%
+  cultivar %>%
+  purrr::map(function(cultivar){
+    rasts <- 
+      readr::read_rds(paste0(derived_data,"recons/",cultivar,"_recons.rds")) %>%
+      purrr::map_dfr(function(x){
+        # the_brick <- 
+        # x %>%
+        # magrittr::extract2(which(.@z$`Years BP` > 1000))
+        
+        mean.temporal <- 
+          raster::cellStats(x, mean, na.rm = T) %>%
+          round(digits = 2)
+        
+        ci.temporal <- 
+          raster::cellStats(x,
+                            stats::quantile,
+                            probs = c(0.25, 0.5, 0.75),
+                            na.rm = T)
+        
+        tibble::tibble(`Years BP` = x@z$`Years BP`,
+                       `Spatial Mean` = mean.temporal,
+                       `Spatial Lower IQR` = ci.temporal[1,],
+                       `Spatial Median` = ci.temporal[2,],
+                       `Spatial Upper IQR` = ci.temporal[3,])
+        
+      },
+      .id = "Marcott et al. 2013 Reconstruction") %>%
+      dplyr::mutate(`Marcott et al. 2013 Reconstruction`  = `Marcott et al. 2013 Reconstruction` %>%
+                      factor(levels = c("Z","Z_Lower","Z_Upper"),
+                             ordered = TRUE) %>%
+                      forcats::fct_recode("Mean" = "Z",
+                                          "1σ Lower" = "Z_Lower",
+                                          "1σ Upper" = "Z_Upper")) %>%
+      dplyr::select(`Years BP`, dplyr::everything())
+    
+  }) %>%
+  magrittr::set_names(crop_GDD$cultivar_long) %>%
+  magrittr::extract(.,sort(names(.))) %>%
+  writexl::write_xlsx(paste0(figures,"source_data/figure_3e_cultivar_graph_data.xlsx"))
+
+## Export raster data for Figure 3
+readr::read_rds(paste0(derived_data,"recons/tropical_japonica_120_recons.rds")) %$%
+  Z %>%
+  magrittr::extract2(paste0("X", c(4410, 3550))) %>%
+  raster::unstack() %>%
+  magrittr::set_names(.,c(4410, 3550)) %>%
+  purrr::iwalk(~raster::writeRaster(.x, paste0(figures,"source_data/figure_3_raster_data_",.y,".asc")))
 
 ```
 

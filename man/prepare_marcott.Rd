@@ -4,8 +4,11 @@
 \alias{prepare_marcott}
 \title{Download and prepare data from Mann et al. 2008 and Marcott et al. 2013.}
 \usage{
-prepare_marcott(calibration.years, raw_dir = "./data/raw_data/",
-  derived_dir = "./data/derived_data/")
+prepare_marcott(
+  calibration.years,
+  raw_dir = "./data/raw_data/",
+  derived_dir = "./data/derived_data/"
+)
 }
 \arguments{
 \item{calibration.years}{The years used to define climatology}

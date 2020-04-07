@@ -4,9 +4,15 @@
 \alias{prepare_ghcn}
 \title{Download and clean daily climate records from the Global Historical Climate Database.}
 \usage{
-prepare_ghcn(region, label, calibration.years, google_maps_elevation_api_key,
+prepare_ghcn(
+  region,
+  label,
+  calibration.years,
+  google_maps_elevation_api_key,
   raw_dir = "./data/raw_data/ghcn/",
-  derived_dir = "./data/derived_data/ghcn/", force.redo = FALSE)
+  derived_dir = "./data/derived_data/ghcn/",
+  force.redo = FALSE
+)
 }
 \arguments{
 \item{region}{A spatial object defining the region}

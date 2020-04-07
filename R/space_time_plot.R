@@ -88,6 +88,8 @@ space_time_plot <- function(the_brick,
     mean.temporal.lower <- raster::cellStats(the_brick_lower, mean, na.rm = T)
   }
 
+
+
   ym <- mean(c(the_brick@extent@ymax, the_brick@extent@ymin))
 
   aspect <- ifelse(raster::isLonLat(the_brick),

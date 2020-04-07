@@ -21,7 +21,8 @@ ByteCompile: true
 Depends: R (>= 3.5.1.0)
 Remotes: 
     hadley/purrrlyr,
-    DavisVaughan/furrr
+    DavisVaughan/furrr,
+    hunzikp/velox
 Imports: 
     FedData,
     Hmisc,
@@ -70,7 +71,8 @@ Imports:
     here,
     rnaturalearth,
     viridisLite,
-    writexl
+    writexl,
+    forcats
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.0.1
+RoxygenNote: 7.1.0
 VignetteBuilder: knitr

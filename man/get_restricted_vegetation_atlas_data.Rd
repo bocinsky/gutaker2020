@@ -4,8 +4,10 @@
 \alias{get_restricted_vegetation_atlas_data}
 \title{Get the restricted vegetation_atlas data from tDAR}
 \usage{
-get_restricted_vegetation_atlas_data(tdar_user = Sys.getenv("tdar_un"),
-  tdar_password = Sys.getenv("tdar_pw"))
+get_restricted_vegetation_atlas_data(
+  tdar_user = Sys.getenv("tdar_un"),
+  tdar_password = Sys.getenv("tdar_pw")
+)
 }
 \arguments{
 \item{tdar_user}{Your tDAR user name}
