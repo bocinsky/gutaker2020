@@ -442,9 +442,7 @@ if(nrow(crop_GDD_run) > 0){
 }
 
 rm(ASIA_rast_etopo5,
-   ASIA_rast_etopo5.sp,
-   GHCN.data.final,
-   GHCN.GDD.incremented.sd)
+   ASIA_rast_etopo5.sp)
 
 message("Calculation indicator Krige models complete: ", capture.output(Sys.time() - time_check))
 
@@ -816,8 +814,7 @@ smooth.preds <- function(y){
   return(y)
 }
 
-test <- 
-  GHCN.data.final$spatial %>%
+GHCN.data.final$spatial %>%
   sf::st_as_sf() %>%
   sf::st_transform(sf::st_crs(japan_thai)) %>%
   sf::st_intersection(japan_thai) %>%
@@ -827,7 +824,7 @@ test <-
   dplyr::left_join(
     GHCN.GDD.incremented.sd[[1]] %>%
       dplyr::group_by(ID) %>%
-      dplyr::summarise(`GDD Model` = list(loess(isoreg(GDD~SD_change)$yf~sample.points, span=0.1, degree=1)))
+      dplyr::summarise(`GDD Model` = list(loess(isoreg(GDD ~ SD_change)$yf ~ sample.points, span=0.1, degree=1)))
   ) %>%
   dplyr::rowwise() %>%
   dplyr::mutate(`GDD` = list(
@@ -842,16 +839,14 @@ test <-
                        .funs = function(x){
                          predict(`GDD Model`,newdata = x)
                        })
-  ))
-
-test %>%
+  )) %>%
   sf::st_as_sf() %>%
   dplyr::select(GDD) %>%
   dplyr::ungroup() %>%
   sf::st_intersection(japan_thai) %>%
   dplyr::rename(Country = NAME) %>%
   sf::st_drop_geometry() %>%
-  tidyr::unnest() %>%
+  tidyr::unnest(cols = c(GDD)) %>%
   dplyr::group_by(Country,`Years BP`) %>%
   dplyr::summarise_all(mean, na.rm = TRUE) %>%
   ggplot2::ggplot(ggplot2::aes(x = `Years BP`,
@@ -862,8 +857,8 @@ test %>%
                        color = NA,
                        alpha = 0.3) +
   ggplot2::geom_line(ggplot2::aes(y = Z)) +
-  ggplot2::scale_x_reverse(limits = c(5510,1010),
-                           breaks = seq(5510,1010,-500),
+  ggplot2::scale_x_reverse(limits = c(5510, 1010),
+                           breaks = seq(5510, 1010, -500),
                            expand = c(0,0)) +
   ggplot2::scale_y_continuous(name = "Growing Degree Days",
                               limits = c(0,8000),
