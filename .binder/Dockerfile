@@ -1,4 +1,4 @@
-FROM rocker/binder:3.6.0
+FROM rocker/binder:3.6.3
 LABEL maintainer='Kyle Bocinsky'
 USER root
 COPY . ${HOME}
@@ -9,7 +9,7 @@ USER ${NB_USER}
 RUN . /etc/environment \
 
   # build this compendium package
-  && R -e "options(repos = list(CRAN = 'http://mran.revolutionanalytics.com/snapshot/2020-01-19/'))" \
+  && R -e "options(repos = list(CRAN = 'http://mran.revolutionanalytics.com/snapshot/2020-04-07/'))" \
 
  # render the manuscript into a docx, you'll need to edit this if you've
  # customised the location and name of your main Rmd file

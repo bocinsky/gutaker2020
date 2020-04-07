@@ -7,8 +7,8 @@
 /analysis/submission/*
 /analysis/zenodo
 /analysis/zenodo/*
-/analysis/gutaker2020_rice_niche_cache
-/analysis/gutaker2020_rice_niche_cache/*
+/analysis/gutaker2020_cache
+/analysis/gutaker2020_cache/*
 # Zenodo
 /Zenodo
 /Zenodo/*
