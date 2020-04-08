@@ -1,5 +1,5 @@
 Package: gutaker2020
-Version: 0.1.0
+Version: 1.0.0
 Title: Research Compendium for Gutaker et al. 2020 thermal niche model
 Description: This R package repository is a research compendium for Gutaker et al. 2020 thermal niche model. 
   The compendium contains all code associated with the analyses described and presented in the publication, 
@@ -14,23 +14,18 @@ Authors@R: c(
                       email = "jguedes@ucsd.edu", 
                       role = c("aut", "ctb", "cph", "dtc"))
             )
-License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 ByteCompile: true
-Depends: R (>= 3.5.1.0)
-Remotes: 
-    hadley/purrrlyr,
-    DavisVaughan/furrr,
-    hunzikp/velox
+Depends: 
+    R (>= 3.6.0),
+    magrittr
 Imports: 
     FedData,
     Hmisc,
     abind,
     mgcv,
-    rgbif,
     raster,
-    magrittr,
     plotrix,
     plyr,
     tibble,
@@ -44,35 +39,26 @@ Imports:
     ggplot2,
     future,
     httr,
-    geomapdata,
     fields,
     knitr,
     rmarkdown,
     R.utils,
     RColorBrewer,
-    bibtex,
     dplyr,
-    htmlwidgets,
-    knitcitations,
-    mapproj,
     maptools,
-    mclust,
-    ncdf4,
-    plotly,
     purrr,
     rgdal,
     sf,
     bookdown,
-    Bchron,
     devtools,
-    furrr,
-    velox,
-    rmapshaper,
     here,
-    rnaturalearth,
     viridisLite,
     writexl,
     forcats
+Remotes:
+    DavisVaughan/furrr,
+    hunzikp/velox
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
+License: MIT + file LICENSE

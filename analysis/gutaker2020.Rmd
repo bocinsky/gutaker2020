@@ -5,9 +5,8 @@ author:
   - Jade d'Alpoim Guedes
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
-   cores: 2
+   cores: !r parallel::detectCores()
    clean: FALSE
-   google_maps_elevation_api_key: !r Sys.getenv('google_maps_elevation_api_key')
 output: 
     bookdown::html_document2:
       code_folding: hide
@@ -25,15 +24,11 @@ This RMarkdown document creates the thermal niche model reported in
 > Gutaker et al. *In review.*
 
 ```{r, setup, echo = FALSE, cache = FALSE}
-# params <- list(cores = 2,
-#                clean = FALSE)
-
 # Set the knitting behavior
 knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE,
                       message = FALSE,
-                      collapse = TRUE, 
-                      # cache = FALSE,
+                      collapse = TRUE,
                       cache = !params$clean,
                       cache.lazy = FALSE,
                       results = 'hold',
@@ -59,7 +54,7 @@ raster::rasterOptions(chunksize = 2e+08,
 
 # Create the plan for (possibly parallel) execution
 future::plan(future::multisession, 
-             workers = min(future::availableCores(), 
+             workers = min(parallel::detectCores(), 
                            params$cores),
              gc = TRUE)
 
@@ -77,6 +72,8 @@ dir.create(derived_data,
 dir.create(figures,
            recursive = TRUE,
            showWarnings = FALSE)
+
+
 
 ```
 

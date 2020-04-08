@@ -1,10 +1,12 @@
+utils::globalVariables(c(".", "X1"))
+
 #' Get the SRTM1 elevation data
 #'
-#' @param latitude
-#' @param longitude
+#' @param latitude a vector of latitude values
+#' @param longitude a vector of longitude values
 #'
-#' @return
-#' @internal
+#' @keywords internal
+#' @return a numeric vector of elevations in meters
 get_srtm <- function(latitude, longitude){
 
   suppressWarnings({
