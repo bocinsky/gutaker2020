@@ -90,10 +90,9 @@ prepare_ghcn <- function(region,
   if (force.redo | !file.exists(paste0(derived_dir,"/ghcn_data_final.Rds"))) {
     GHCN.stations <- GHCN.stations[GHCN.stations$ID %in% names(GHCN.data.clean), ]
 
-    # Get the station elevations using google maps API
-    GHCN.stations$elevation <- rgbif::elevation(latitude = GHCN.stations@coords[, 2],
-                                                longitude = GHCN.stations@coords[, 1],
-                                                key = google_maps_elevation_api_key)[, "elevation"]
+    # Get the station elevations using SRTM 1
+    GHCN.stations$elevation <- get_srtm(latitude = GHCN.stations@coords[, 2],
+                                        longitude = GHCN.stations@coords[, 1])
 
     # Get all stations averages over the calibration period
     GHCN.data.averages <- lapply(GHCN.data.clean, function(station) {
