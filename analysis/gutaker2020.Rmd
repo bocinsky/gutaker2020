@@ -5,7 +5,7 @@ author:
   - Jade d'Alpoim Guedes
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
-   cores: !r parallel::detectCores()
+   cores: 2
    clean: FALSE
 output: 
     bookdown::html_document2:
@@ -29,7 +29,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE,
                       message = FALSE,
                       collapse = TRUE,
-                      cache = !params$clean,
+                      cache = FALSE,
                       cache.lazy = FALSE,
                       results = 'hold',
                       out.width = "100%",
@@ -49,8 +49,8 @@ options(scipen = 999,
         knitr.table.format = "html")
 
 # Force Raster to load large rasters into memory
-raster::rasterOptions(chunksize = 2e+08,
-                      maxmemory = 2e+09)
+raster::rasterOptions(chunksize = 2e+09,
+                      maxmemory = 2e+10)
 
 # Create the plan for (possibly parallel) execution
 future::plan(future::multisession, 
@@ -495,33 +495,36 @@ furrr::future_walk(crop_GDD$cultivar,
                                                            crop,
                                                            "_models.rds"))
                      
-                     purrr::walk(Zs, 
+                     purrr::map(Zs, 
                                  function(z){
-                                   suppressWarnings(crop.models@data %$%
-                                                      model %>%
-                                                      purrr::map(
-                                                        function(x){
-                                                          x %>%
-                                                            predict(newdata = marcott2013[[z]]) %>%
-                                                            magrittr::multiply_by(100) %>%
-                                                            round() %>%
-                                                            as.integer()
-                                                        }) %>%
-                                                      do.call(rbind, .) %>%
-                                                      tibble::as_tibble() %>%
-                                                      magrittr::set_colnames(marcott2013$YearBP) %>%
-                                                      new("SpatialPointsDataFrame",
-                                                          data = .,
-                                                          coords.nrs = crop.models@coords.nrs,
-                                                          coords = crop.models@coords,
-                                                          bbox = crop.models@bbox,
-                                                          proj4string = crop.models@proj4string) %>%
-                                                      as("SpatialPixelsDataFrame") %>%
-                                                      raster::brick() %>%
-                                                      raster::setZ(marcott2013$YearBP,
-                                                                   name="Years BP"))
+                                   suppressWarnings(
+                                     crop.models@data %$%
+                                       model %>%
+                                       purrr::map(
+                                         function(x){
+                                           x %>%
+                                             predict(newdata = marcott2013[[z]]) %>%
+                                             magrittr::multiply_by(100) %>%
+                                             round() %>%
+                                             as.integer()
+                                         }) %>%
+                                       do.call(rbind, .) %>%
+                                       tibble::as_tibble() %>%
+                                       magrittr::set_colnames(marcott2013$YearBP) %>%
+                                       new("SpatialPointsDataFrame",
+                                           data = .,
+                                           coords.nrs = crop.models@coords.nrs,
+                                           coords = crop.models@coords,
+                                           bbox = crop.models@bbox,
+                                           proj4string = crop.models@proj4string) %>%
+                                       as("SpatialPixelsDataFrame") %>%
+                                       raster::brick() %>%
+                                       raster::setZ(marcott2013$YearBP,
+                                                    name="Years BP")
+                                   )
                                  }) %>%
                        magrittr::set_names(Zs) %>%
+                       purrr::map(raster::readAll) %>%
                        readr::write_rds(paste0(derived_data,"recons/",
                                                crop,
                                                "_recons.rds"),
@@ -755,19 +758,19 @@ japan_thai_data <-
       readr::read_rds(paste0(derived_data,"recons/all_",crop,".rds")) %>%
         purrr::map(
           function(y){
-          y.vx <- velox::velox(y)
-          y.vx$extract(japan_thai,
-                       fun = function(i){mean(i, na.rm = TRUE)}) %>%
-            t() %>%
-            tibble::as_tibble() %>%
-            magrittr::set_names(japan_thai$NAME) %>%
-            dplyr::mutate(`Years BP` = 
-                            names(y) %>% 
-                            stringr::str_remove("X") %>% 
-                            as.integer()) %>%
-            dplyr::select(`Years BP`,
-                          dplyr::everything())
-        }) 
+            y.vx <- velox::velox(y)
+            y.vx$extract(japan_thai,
+                         fun = function(i){mean(i, na.rm = TRUE)}) %>%
+              t() %>%
+              tibble::as_tibble() %>%
+              magrittr::set_names(japan_thai$NAME) %>%
+              dplyr::mutate(`Years BP` = 
+                              names(y) %>% 
+                              stringr::str_remove("X") %>% 
+                              as.integer()) %>%
+              dplyr::select(`Years BP`,
+                            dplyr::everything())
+          }) 
     }) %>%
   purrr::map(dplyr::bind_rows,
              .id = "Series") %>%

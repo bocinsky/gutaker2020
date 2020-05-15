@@ -1,9 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-[![Last-changedate](https://img.shields.io/badge/last%20change-2018--10--30-brightgreen.svg)](https://github.com/bocinsky/gutaker2019/commits/master) [![CircleCI](https://circleci.com/gh/bocinsky/gutaker2019.svg?style=svg)](https://circleci.com/gh/bocinsky/gutaker2019) [![minimal R version](https://img.shields.io/badge/R%3E%3D-3.5.1-brightgreen.svg)](https://cran.r-project.org/) [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](http://choosealicense.com/licenses/mit/) <!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1239106.svg)](https://doi.org/10.5281/zenodo.1239106) -->
+[![Last-changedate](https://img.shields.io/badge/last%20change-2020--05--15-brightgreen.svg)](https://github.com/bocinsky/gutaker2020_rice_niche/commits/master) [![Travis build status](https://travis-ci.org/bocinsky/gutaker2020_rice_niche.svg?branch=master)](https://travis-ci.org/bocinsky/gutaker2020_rice_niche) [![minimal R version](https://img.shields.io/badge/R%3E%3D-3.5.1-brightgreen.svg)](https://cran.r-project.org/) [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](http://choosealicense.com/licenses/mit/) <!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3647599.svg)](https://doi.org/10.5281/zenodo.3647599) --> [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/bocinsky/gutaker2020_rice_niche/master?urlpath=rstudio)
 
-## Research compendium package for Gutaker et al. 2018 thermal niche model
+## Research compendium package for Gutaker et al. 2020 thermal niche model
 
 **When using the code included in this research compendium, please cite *all* of the following:**
 
@@ -26,15 +26,15 @@ The files at the URL above will generate the results as found in the publication
 
 ### Overview of contents
 
-This repository is a research compendium package for the thermal niche model presented in Gutaker et al. (2019), and initially developed in d’Alpoim Guedes and Bocinsky (2018). The compendium contains all code associated with the analyses described and presented in the publication, as well as a Docker environment (described in the `Dockerfile`) for running the code.
+This repository is a research compendium package for the thermal niche model presented in Gutaker et al. (2019), and initially developed in d’Alpoim Guedes and Bocinsky (2018). The compendium contains all code associated with the analyses described and presented in the publication, as well as a Docker environment (described in the `Dockerfile`) for running the code.
 
 This compendium is an R package, meaning that by installing it you are also installing most required dependencies. See below for hints on installing some of the command-line tools necessary in this analysis on macOS and Linux. This compendium takes a lot of its cues from [Ben Marwick’s `rrtools` package](https://github.com/benmarwick/rrtools) for performing reproducible research.
 
-The analyses presented in Gutaker et al. (2019) are performed in an RMarkdown vignette (`GutakerEtAl2019.Rmd`) located in the `vignettes` directory.
+The analyses presented in Gutaker et al. (2019) are performed in an RMarkdown vignette (`GutakerEtAl2019.Rmd`) located in the `vignettes` directory.
 
 ### Downloading the compendium package
 
-This compendium package may be downloaded as data file XX from Gutaker et al. (2019), directly from Github as an archive, or cloned with `git`.
+This compendium package may be downloaded as data file XX from Gutaker et al. (2019), directly from Github as an archive, or cloned with `git`.
 
 #### Downloading directly from Github
 
@@ -151,10 +151,10 @@ First, set your environment variables in the terminal. On Unix-alike systems (in
 export google_maps_elevation_api_key=YOUR_API_KEY
 ```
 
-Then, from within the `gutaker2019` directory in the terminal:
+Then, from within the `gutaker2020_rice_niche` directory in the terminal:
 
 ``` bash
-bash inst/gutaker2019_BASH.sh
+bash inst/gutaker2020_rice_niche_BASH.sh
 ```
 
 Output will appear in the `vignettes/` directory.
@@ -163,7 +163,7 @@ Output will appear in the `vignettes/` directory.
 
 **This is what you want to run to reproduce our results precisely. We strongly encourage you to run the analysis from *R* and RStudio if your goal is to explore how we developed the model, or to change parameters.**
 
-[Docker](https://www.docker.com/) is a virtual computing environment that facilitates reproducible research—it allows for research results to be produced independent of the machine on which they are computed. Docker users describe computing environments in a text format called a “Dockerfile”, which when read by the Docker software builds a virtual machine, or “container”. Other users can then load the container on their own computers. Users can upload container images to [Docker Hub](https://hub.docker.com/), and the image for this research (without the analyses run) is available at <https://hub.docker.com/r/bocinsky/gutaker2019/>.
+[Docker](https://www.docker.com/) is a virtual computing environment that facilitates reproducible research—it allows for research results to be produced independent of the machine on which they are computed. Docker users describe computing environments in a text format called a “Dockerfile”, which when read by the Docker software builds a virtual machine, or “container”. Other users can then load the container on their own computers. Users can upload container images to [Docker Hub](https://hub.docker.com/), and the image for this research (without the analyses run) is available at <https://hub.docker.com/r/bocinsky/gutaker2020_rice_niche/>.
 
 We have included a Dockerfile which builds a Docker container for running the analyses described in the paper. It uses [`rocker/geospatial:3.4.4`](https://hub.docker.com/r/rocker/geospatial/), which provides R, [RStudio Server](https://www.rstudio.com/products/rstudio/download-server/), the [tidyverse](http://tidyverse.org/) of R packages as its base image and adds several geospatial software packages ([GDAL](http://www.gdal.org/), [GEOS](https://trac.osgeo.org/geos/), and [proj.4](http://proj4.org/). The Dockerimage (1) adds ffmpeg, (2) updates the R packages, and (3) installs the R software packages required by this package.
 
@@ -181,10 +181,10 @@ export google_maps_elevation_api_key=YOUR_API_KEY
 
 ##### Run the analysis directly
 
-To run the analyses directly, render the `guedesbocinsky2018.Rmd` RMarkdown vignette at the end of the run command like so (in the terminal):
+To run the analyses directly, render the `gutaker2020_rice_niche.Rmd` RMarkdown document at the end of the run command like so (in the terminal):
 
 ``` bash
-docker exec bocinsky/gutaker2019:1.0.0 r -e "rmarkdown::render('/gutaker2019/vignettes/GutakerEtAl2019.Rmd', \
+docker exec bocinsky/gutaker2020_rice_niche:1.0.0 r -e "rmarkdown::render('/gutaker2020_rice_niche/analysis/gutaker2020_rice_niche.Rmd', \
                                                                               params = list(cores = 1, \
                                                                               clean = FALSE, \
                                                                               google_maps_elevation_api_key = '$google_maps_elevation_api_key'))"
@@ -195,7 +195,7 @@ docker exec bocinsky/gutaker2019:1.0.0 r -e "rmarkdown::render('/gutaker2019/vig
 Alternatively, you can run the container in interactive mode and load the script yourself like so (in the terminal):
 
 ``` bash
-docker exec -it bocinsky/gutaker2019:1.0.0 bash
+docker exec -it bocinsky/gutaker2020_rice_niche:1.0.0 bash
 ```
 
 You can use the `exit` command to stop the container.
@@ -205,7 +205,7 @@ You can use the `exit` command to stop the container.
 Finally, you can host RStudio Server locally to use the RStudio browser-based IDE. Run like so (in the terminal):
 
 ``` bash
-docker exec -p 8787:8787 bocinsky/gutaker2019:1.0.0
+docker exec -p 8787:8787 bocinsky/gutaker2020_rice_niche:1.0.0
 ```
 
 Then, open a browser (we find [Chrome](https://www.google.com/chrome/) works best) and navigate to “localhost:8787” or or run `docker-machine ip default` in the shell to find the correct IP address, and log in with **rstudio**/**rstudio** as the user name and password. In the explorer (lower right pane in RStudio), navigate to the `guedesbocinsky2018` directory, and click the `GutakerEtAl2019.Rproj` to open the project.
@@ -251,12 +251,20 @@ The `vignettes/` directory contains all data generated by the `GutakerEtAl2019.R
   - `data/derived_data/models/` contains R data objects describing the Kriging interpolation models across the study area
   - `data/derived_data/recons/` contains NetCDF format raster bricks of the model output (i.e., the reconstructed crop niches)
   - `figures/` contains all figures output by the script, including videos of how each crop niche changes over time
-  - `submission/` contains all of the figures, tables, movies, and supplemental datasets included with Gutaker et al. (2019)
+  - `submission/` contains all of the figures, tables, movies, and supplemental datasets included with Gutaker et al. (2019)
 
 ### Licenses
 
-Code: [MIT](http://opensource.org/licenses/MIT) year: 2018<br> Copyright holders: R. Kyle Bocinsky and Jade d’Alpoim Guedes
+**Text and figures :** [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
 
-### Contact
+**Code :** [GNU GPLv3](LICENSE.md)
 
-**R. Kyle Bocinsky, PhD, RPA**<br> [Montana Climate Office](https://climate.umt.edu/), University of Montana<br> [Division of Earth and Ecosystem Sciences](https://www.dri.edu/earth-ecosystem-sciences), Desert Research Institute<br> The [Research Institute](http://www.crowcanyon.org/institute/) at Crow Canyon Archaeological Center<br> 770.362.6659 – Mobile<br> <bocinsky@gmail.com> – Email<br> [bocinsky.io](http://www.bocinsky.io/) – Web
+**Data :** [CC-0](http://creativecommons.org/publicdomain/zero/1.0/) attribution requested in reuse
+
+### Contributions
+
+We welcome contributions from everyone. Before you get started, please see our [contributor guidelines](CONTRIBUTING.md). Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
+
+### Acknowledgements
+
+This compendium was created using the [`rrtools` package by Ben Marwick](https://github.com/benmarwick/rrtools), which is ✨ pure magic ✨ for doing reproducible research.

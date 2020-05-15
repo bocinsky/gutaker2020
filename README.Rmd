@@ -38,7 +38,7 @@ library(magrittr)
  
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1239106.svg)](https://doi.org/10.5281/zenodo.1239106)
 
-The files at the URL above will generate the results as found in the publication. The files hosted at [https://github.com/bocinsky/gutaker2019](https://github.com/bocinsky/gutaker2019) are the development versions and may have changed since this compendium was released.
+The files at the URL above will generate the results as found in the publication. The files hosted at [https://github.com/bocinsky/gutaker2020](https://github.com/bocinsky/gutaker2020) are the development versions and may have changed since this compendium was released.
 
 ### Authors  of this repository:
 
@@ -46,26 +46,18 @@ The files at the URL above will generate the results as found in the publication
 - Jade d'Alpoim Guedes ([jadeguedes@gmail.com](mailto:jadeguedes@gmail.com))
 
 ### Overview of contents
-This repository is a research compendium package for the thermal niche model presented in Gutaker et al. (2019), and initially developed in d'Alpoim Guedes and Bocinsky (2018). The compendium contains all code associated with the analyses described and presented in the publication, as well as a Docker environment (described in the `Dockerfile`) for running the code.
+This repository is a research compendium package for the thermal niche model presented in Gutaker et al. (2020), and initially developed in d'Alpoim Guedes and Bocinsky (2018). The compendium contains all code associated with the analyses described and presented in the publication, as well as a Docker environment (described in the `Dockerfile`) for running the code.
 
 This compendium is an R package, meaning that by installing it you are also installing most required dependencies. See below for hints on installing some of the command-line tools necessary in this analysis on macOS and Linux. This compendium takes a lot of its cues from [Ben Marwick's `rrtools` package](https://github.com/benmarwick/rrtools) for performing reproducible research.
 
-The analyses presented in Gutaker et al. (2019) are performed in an RMarkdown vignette (`GutakerEtAl2019.Rmd`) located in the `vignettes` directory.
-
-### Downloading the compendium package
-This compendium package may be downloaded as data file XX from Gutaker et al. (2019), directly from Github as an archive, or cloned with `git`.
-
-#### Downloading directly from Github
-You can download the compendium package using the following link:
-
-[https://github.com/bocinsky/gutaker2019/archive/1.0.0.zip](https://github.com/bocinsky/gutaker2019/archive/1.0.0.zip)
+The analyses presented in Gutaker et al. (2020) are performed in an RMarkdown vignette (`GutakerEtAl2020.Rmd`) located in the `analysis` directory.
 
 #### Cloning via `git`
 To download this research compendium as you see it on GitHub, for offline browsing, [install git on your computer](https://git-scm.com/) and use this line at a Bash prompt ("Terminal" on macOS and Unix-alikes, "Command Prompt" on Windows):
 
 ```bash
 # Clone into the repository
-git clone https://github.com/bocinsky/gutaker2019.git
+git clone https://github.com/bocinsky/gutaker2020.git
 
 # Change directories into the local repository
 cd gutaker2019
@@ -138,8 +130,8 @@ This analysis has been designed to take advantage of modern multi-core or multi-
   devtools::install(".", dependencies = TRUE, upgrade_dependencies = FALSE)
   remotes::install_local(".")
   ```
-5. Go to the `vignettes/` directory.
-6. Open `GutakerEtAl2019.Rmd`.
+5. Go to the `analysis/` directory.
+6. Open `GutakerEtAl2020.Rmd`.
 7. Set environment variables (in header at the top of the document). You should replace the sections that start with `!r` (through the end of the line) with your Google Maps Elevation API key (in single quotes). It should look something like this before replacement:
   ![](./inst/header.png)
   After replacement:
