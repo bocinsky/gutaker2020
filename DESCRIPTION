@@ -54,7 +54,8 @@ Imports:
     here,
     viridisLite,
     writexl,
-    forcats
+    forcats,
+    geomapdata
 Remotes:
     DavisVaughan/furrr,
     hunzikp/velox

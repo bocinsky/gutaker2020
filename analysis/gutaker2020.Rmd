@@ -140,6 +140,7 @@ if(!params$clean & file.exists(paste0(raw_data,"ASIA_rast_etopo5.tif"))){
   
   ne_10m_lakes <-  paste0(ne_dir,"ne_10m_lakes/ne_10m_lakes.shp") %>%
     sf::st_read() %>%
+    sf::st_make_valid() %>%
     sf::st_transform(sf::st_crs(ASIA_poly)) %>%
     sf::st_intersection(ASIA_poly)
   
