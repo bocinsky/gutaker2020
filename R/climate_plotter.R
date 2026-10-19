@@ -1,7 +1,9 @@
-utils::globalVariables(c("DOY",
-                         "DATA",
-                         "MEAN",
-                         "SD"))
+utils::globalVariables(c(
+  "DOY",
+  "DATA",
+  "MEAN",
+  "SD"
+))
 #' Plot climatology for a GHCN station and element (variable).
 #'
 #' @param data GHCN data
@@ -15,13 +17,20 @@ climate_plotter <- function(data, station, element) {
   weather <- data$weather[[station]][[element]] %>%
     tibble::as_data_frame()
 
-  weather <- data.frame(DOY = as.numeric(strftime(as.POSIXlt(paste(rep(weather$YEAR, each = 31),
-                                                                   rep(weather$MONTH, each = 31),
-                                                                   rep(1:31, times = nrow(weather)),
-                                                                   sep = "."),
-                                                             format = "%Y.%m.%d"),
-                                                  format = "%j")),
-                        DATA = as.numeric(t(weather[, -1:-2])))
+  weather <- data.frame(
+    DOY = as.numeric(strftime(
+      as.POSIXlt(
+        paste(rep(weather$YEAR, each = 31),
+          rep(weather$MONTH, each = 31),
+          rep(1:31, times = nrow(weather)),
+          sep = "."
+        ),
+        format = "%Y.%m.%d"
+      ),
+      format = "%j"
+    )),
+    DATA = as.numeric(t(weather[, -1:-2]))
+  )
   weather <- weather[!is.na(weather$DATA) & !is.na(weather$DOY), ]
 
   ymin <- min(weather$DATA / 10) %>% plyr::round_any(10, f = floor)

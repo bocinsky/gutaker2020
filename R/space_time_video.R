@@ -104,8 +104,10 @@ space_time_video <- function(the_brick,
 
   for (layer in 1:raster::nlayers(the_brick)) {
     grDevices::png(
-      filename = stringr::str_c(out_dir, "/image",
-                                stringi::stri_pad_left(layer, width = 4, pad = 0), ".png"),
+      filename = stringr::str_c(
+        out_dir, "/image",
+        stringi::stri_pad_left(layer, width = 4, pad = 0), ".png"
+      ),
       width = fig_width,
       height = fig_height,
       units = "in",
@@ -210,9 +212,11 @@ space_time_video <- function(the_brick,
       main = ""
     )
 
-    legend.breaks <- seq(from = utils::head(zbreaks, 1),
-                         to = utils::tail(zbreaks, 1),
-                         length.out = (length(zbreaks) + 1))
+    legend.breaks <- seq(
+      from = utils::head(zbreaks, 1),
+      to = utils::tail(zbreaks, 1),
+      length.out = (length(zbreaks) + 1)
+    )
 
     graphics::rect(
       col = colors,
@@ -286,15 +290,16 @@ space_time_video <- function(the_brick,
     )
 
     graphics::plot(1,
-                   type = "n",
-                   xlab = "",
-                   ylab = "",
-                   xlim = timelim,
-                   ylim = range(zbreaks),
-                   xaxs = "i",
-                   yaxs = "i",
-                   axes = FALSE,
-                   main = "")
+      type = "n",
+      xlab = "",
+      ylab = "",
+      xlim = timelim,
+      ylim = range(zbreaks),
+      xaxs = "i",
+      yaxs = "i",
+      axes = FALSE,
+      main = ""
+    )
 
 
     graphics::polygon(
@@ -377,15 +382,16 @@ space_time_video <- function(the_brick,
       new = T
     )
     graphics::plot(1,
-                   type = "n",
-                   xlab = "",
-                   ylab = "",
-                   xlim = timelim,
-                   ylim = c(0, graph_height),
-                   xaxs = "i",
-                   yaxs = "i",
-                   axes = FALSE,
-                   main = "")
+      type = "n",
+      xlab = "",
+      ylab = "",
+      xlim = timelim,
+      ylim = c(0, graph_height),
+      xaxs = "i",
+      yaxs = "i",
+      axes = FALSE,
+      main = ""
+    )
     graphics::segments(
       x0 = timeaxis,
       x1 = timeaxis,
@@ -419,14 +425,16 @@ space_time_video <- function(the_brick,
 
   # Create the video
   fps <- raster::nlayers(the_brick) / length
-  system(stringr::str_c("ffmpeg",
-                        " -r ", fps,
-                        " -i ", out_dir, "/image%04d.png",
-                        " -s:v ", movie.width, "x", movie.height,
-                        " -c:v libx264",
-                        " -crf 30",
-                        " -profile:v High",
-                        " -pix_fmt yuv420p",
-                        " ",
-                        out_file, " -y"))
+  system(stringr::str_c(
+    "ffmpeg",
+    " -r ", fps,
+    " -i ", out_dir, "/image%04d.png",
+    " -s:v ", movie.width, "x", movie.height,
+    " -c:v libx264",
+    " -crf 30",
+    " -profile:v High",
+    " -pix_fmt yuv420p",
+    " ",
+    out_file, " -y"
+  ))
 }

@@ -11,19 +11,21 @@ utils::globalVariables(c("out"))
 prepare_marcott <- function(calibration.years,
                             raw_dir = "./data/raw_data/",
                             derived_dir = "./data/derived_data/") {
-
   # Get Mann et al. 2008 infilled instrumental temperature data,
   # and extract the 1961--1990 period.
   message("Downloading Mann et al. 2008 infilled instrumental temperature data.")
   dir.create(raw_dir, showWarnings = FALSE, recursive = TRUE)
   dir.create(derived_dir, showWarnings = FALSE, recursive = TRUE)
   utils::download.file("ftp://ftp.ncdc.noaa.gov/pub/data/paleo/contributions_by_author/mann2008/instrument.zip",
-                destfile = paste0(raw_dir, "/instrument.zip"))
+    destfile = paste0(raw_dir, "/instrument.zip")
+  )
   utils::unzip(paste0(raw_dir, "/instrument.zip"),
-               exdir = raw_dir)
+    exdir = raw_dir
+  )
   # Get just the Northern Hemisphere HAD CRU V3 data.
   iHAD_NH_reform <- readr::read_table(paste0(raw_dir, "/iHAD_NH_reform"),
-                                      col_names = c("Year", "Temperature"))
+    col_names = c("Year", "Temperature")
+  )
   iHAD_NH_reform <- iHAD_NH_reform[iHAD_NH_reform$Year %in% calibration.years, ]
   message("Calculating standard deviation for 1961--1990 calibration period.")
   calib.sd <- stats::sd(iHAD_NH_reform$Temperature)
@@ -32,9 +34,11 @@ prepare_marcott <- function(calibration.years,
   # which is referenced to the Mann et al. 2008 infilled instrumental average from 1961--1990
   message("Downloading Marcott et al. 2013 Northern Hemisphere temperature reconstruction.")
 
-  FedData::download_data(url = "http://www.sciencemag.org/content/suppl/2013/03/07/339.6124.1198.DC1/Marcott.SM.database.S1.xlsx",
-                         destdir = raw_dir)
-  marcott2013 <- readxl::read_excel(paste0(raw_dir,"/Marcott.SM.database.S1.xlsx"),
+  FedData::download_data(
+    url = "http://www.sciencemag.org/content/suppl/2013/03/07/339.6124.1198.DC1/Marcott.SM.database.S1.xlsx",
+    destdir = raw_dir
+  )
+  marcott2013 <- readxl::read_excel(paste0(raw_dir, "/Marcott.SM.database.S1.xlsx"),
     sheet = "TEMPERATURE STACKS",
     range = "U3:W571",
     col_types = "numeric"

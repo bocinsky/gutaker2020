@@ -9,7 +9,7 @@
 #'
 #' @return The cutoff value
 #' @export
-calcGapCutoff <- function(rleVector, pLevel=0.95) {
+calcGapCutoff <- function(rleVector, pLevel = 0.95) {
   f.all.rles <- stats::ecdf(rleVector)
   x <- seq(0, 31, length.out = 100000)
   out <- mean(x[which(abs(f.all.rles(x) - pLevel) == min(abs(f.all.rles(x) - pLevel)))])

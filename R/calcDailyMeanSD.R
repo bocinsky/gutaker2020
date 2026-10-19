@@ -1,4 +1,3 @@
-
 #' This function smooths periodic (annual) data in the GHCN format.
 #'
 #' First, it converts all data to DOY data (366-day-year).
@@ -20,14 +19,16 @@ calcDailyMeanSD <- function(daily.data,
   if (!unwrapped) {
     # Unwrap data and convert to POSIX Day of Year (DoY)
     daily.data.unwrap <- data.frame(
-      DOY = as.numeric(strftime(as.POSIXlt(paste(rep(daily.data$YEAR, each = 31),
-        rep(daily.data$MONTH, each = 31),
-        rep(1:31, times = nrow(daily.data)),
-        sep = "."
-      ),
-      format = "%Y.%m.%d"
-      ),
-      format = "%j"
+      DOY = as.numeric(strftime(
+        as.POSIXlt(
+          paste(rep(daily.data$YEAR, each = 31),
+            rep(daily.data$MONTH, each = 31),
+            rep(1:31, times = nrow(daily.data)),
+            sep = "."
+          ),
+          format = "%Y.%m.%d"
+        ),
+        format = "%j"
       )),
       DATA = as.numeric(t(daily.data[, -1:-2]))
     )
