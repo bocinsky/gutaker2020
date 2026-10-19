@@ -68,9 +68,10 @@ space_time_plot <- function(the_brick,
   mean.spatial <- raster::mean(the_brick, na.rm = T)
   mean.temporal <- raster::cellStats(the_brick, mean, na.rm = T)
   ci.temporal <- raster::cellStats(the_brick,
-                                   stats::quantile,
-                                   probs = c(0.25, 0.75),
-                                   na.rm = T)
+    stats::quantile,
+    probs = c(0.25, 0.75),
+    na.rm = T
+  )
 
   if (!is.null(smoother)) {
     mean.temporal %<>% stats::filter(filter = smoother)
@@ -84,10 +85,9 @@ space_time_plot <- function(the_brick,
 
   if (!is.null(the_brick_lower)) {
     mean.all.lower <- mean(the_brick_lower[], na.rm = T)
-    mean.spatial.lower <-  raster::mean(the_brick_lower, na.rm = T)
+    mean.spatial.lower <- raster::mean(the_brick_lower, na.rm = T)
     mean.temporal.lower <- raster::cellStats(the_brick_lower, mean, na.rm = T)
   }
-
 
 
   ym <- mean(c(the_brick@extent@ymax, the_brick@extent@ymin))
@@ -215,9 +215,11 @@ space_time_plot <- function(the_brick,
     main = ""
   )
 
-  legend.breaks <- seq(from = utils::head(zbreaks, 1),
-                       to = utils::tail(zbreaks, 1),
-                       length.out = (length(zbreaks) + 1))
+  legend.breaks <- seq(
+    from = utils::head(zbreaks, 1),
+    to = utils::tail(zbreaks, 1),
+    length.out = (length(zbreaks) + 1)
+  )
   graphics::rect(
     col = colors,
     border = NA,
@@ -276,15 +278,16 @@ space_time_plot <- function(the_brick,
     new = T
   )
   graphics::plot(1,
-                 type = "n",
-                 xlab = "",
-                 ylab = "",
-                 xlim = timelim,
-                 ylim = range(zbreaks),
-                 xaxs = "i",
-                 yaxs = "i",
-                 axes = FALSE,
-                 main = "")
+    type = "n",
+    xlab = "",
+    ylab = "",
+    xlim = timelim,
+    ylim = range(zbreaks),
+    xaxs = "i",
+    yaxs = "i",
+    axes = FALSE,
+    main = ""
+  )
 
 
   graphics::polygon(
@@ -358,15 +361,16 @@ space_time_plot <- function(the_brick,
     new = T
   )
   graphics::plot(1,
-                 type = "n",
-                 xlab = "",
-                 ylab = "",
-                 xlim = timelim,
-                 ylim = c(0, graph_height),
-                 xaxs = "i",
-                 yaxs = "i",
-                 axes = FALSE,
-                 main = "")
+    type = "n",
+    xlab = "",
+    ylab = "",
+    xlim = timelim,
+    ylim = c(0, graph_height),
+    xaxs = "i",
+    yaxs = "i",
+    axes = FALSE,
+    main = ""
+  )
   graphics::segments(
     x0 = timeaxis,
     x1 = timeaxis,

@@ -5,7 +5,7 @@
 #'
 #' @return A [data.frame] of annualized data.
 #' @export
-annualize <- function(station, months=1:12) {
+annualize <- function(station, months = 1:12) {
   # first, remove unwanted months
   station <- station[station$MONTH %in% months, ]
 
